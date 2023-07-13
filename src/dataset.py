@@ -25,10 +25,9 @@ class OralClassificationDataset(torch.utils.data.Dataset):
         image = self.images[annotation["image_id"]]
         image_path = os.path.join(os.path.dirname(self.annonations), "images", image["file_name"])
         image = Image.open(image_path).convert("RGB")
-        image = TF.to_tensor(image)
         
         x, y, w, h = annotation["bbox"]
-        subimage = image[:, y:y+h, x:x+w]
+        subimage = image.crop((x, y, x+w, y+h))
 
         if self.transform:
             subimage = self.transform(subimage)
@@ -43,6 +42,7 @@ if __name__ == "__main__":
         "dataset/oral/train.json",
         transform=transforms.Compose([
             transforms.Resize((224, 224)),
+            transforms.ToTensor()
         ])
     )
 

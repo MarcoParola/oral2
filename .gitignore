@@ -2,3 +2,8 @@
 __pycache__/
 
 /dataset
+/logs
+/outputs
+/.hydra
+
+*.log
