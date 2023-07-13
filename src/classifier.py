@@ -33,7 +33,8 @@ class OralClassifierModule(LightningModule):
         self._common_step(batch, batch_idx, "test")
 
     def predict_step(self, batch, batch_idx, dataloader_idx=None):
-        return self(batch)
+        x = self.preprocess(batch)
+        return self(x)
 
     def configure_optimizers(self):
         return torch.optim.Adam(self.parameters(), lr=self.hparams.lr)

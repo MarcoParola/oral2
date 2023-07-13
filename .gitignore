@@ -5,5 +5,8 @@ __pycache__/
 /logs
 /outputs
 /.hydra
+/checkpoints
 
 *.log
+*.pth
+*.png

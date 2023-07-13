@@ -30,7 +30,7 @@ def main(cfg):
     
     if cfg.log.tensorboard:
         from pytorch_lightning.loggers import TensorBoardLogger
-        tensorboard_logger = TensorBoardLogger("logs", name=cfg.wandb.project)
+        tensorboard_logger = TensorBoardLogger("logs", name="oral")
         loggers.append(tensorboard_logger)
 
     model = OralClassifierModule(
@@ -44,7 +44,7 @@ def main(cfg):
         test=cfg.dataset.test,
         batch_size=cfg.train.batch_size,
         transform=torchvision.transforms.Compose([
-            torchvision.transforms.Resize(cfg.dataset.resize),
+            torchvision.transforms.Resize(cfg.dataset.resize, antialias=True),
             torchvision.transforms.CenterCrop(cfg.dataset.resize),
             torchvision.transforms.ToTensor(),
         ])
