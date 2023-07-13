@@ -14,9 +14,9 @@ python plot-pca.py --model resnet50.pth  --dataset dataset/oral/test.json
 
 ### Risorse
 
-Per la configurazione studia [hydra](https://hydra.cc/docs/intro/)
-Per il training ho usato [pytorch-lightning](https://www.pytorchlightning.ai/index.html)
-Per i modelli [torchvision](https://pytorch.org/vision/stable/index.html)
+- Per la configurazione studia [hydra](https://hydra.cc/docs/intro/)
+- Per il training ho usato [pytorch-lightning](https://www.pytorchlightning.ai/index.html)
+- Per i modelli [torchvision](https://pytorch.org/vision/stable/index.html)
 
 Studia bene i framework e poi metti le mani sul codice
 
