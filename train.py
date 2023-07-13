@@ -45,6 +45,7 @@ def main(cfg):
         batch_size=cfg.train.batch_size,
         transform=torchvision.transforms.Compose([
             torchvision.transforms.Resize(cfg.dataset.resize),
+            torchvision.transforms.CenterCrop(cfg.dataset.resize),
             torchvision.transforms.ToTensor(),
         ])
     )

@@ -17,6 +17,11 @@ class OralClassificationDataset(torch.utils.data.Dataset):
         for image in self.dataset["images"]:
             self.images[image["id"]] = image
         
+        self.categories = dict()
+        for i, category in enumerate(self.dataset["categories"]):
+            self.categories[category["id"]] = i
+
+        
     def __len__(self):
         return len(self.dataset["annotations"])
 
@@ -32,7 +37,9 @@ class OralClassificationDataset(torch.utils.data.Dataset):
         if self.transform:
             subimage = self.transform(subimage)
 
-        return subimage, annotation["category_id"]
+        category = self.categories[annotation["category_id"]]
+
+        return subimage, category
 
 
 if __name__ == "__main__":
@@ -41,7 +48,7 @@ if __name__ == "__main__":
     dataset = OralClassificationDataset(
         "dataset/oral/train.json",
         transform=transforms.Compose([
-            transforms.Resize((224, 224)),
+            transforms.Resize((224, 224), antialias=True),
             transforms.ToTensor()
         ])
     )
