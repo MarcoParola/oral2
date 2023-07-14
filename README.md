@@ -48,10 +48,9 @@ Studia bene i framework e poi metti le mani sul codice
 
 I tuoi obiettivi sono
 
-- [x] Aggiungere metriche di classificazione 
 - [ ] Sistemare il codice (ci potrebbero essere bug l'ho scrito di getto)
 - [ ] Far funzionare per bene il training
 - [ ] Addestrare vari modelli sul problema di classificazione
 - [ ] Train AutoEncoder (opzionale)
-- [ ] crivere il codice per addestrare il layer di proiezione dallo spazio delle feature di classificazione a quello del medico esperto. Chiedi a [@MarcoParola](https://github.com/MarcoParola) il dataset
+- [ ] Scrivere il codice per addestrare il layer di proiezione dallo spazio delle feature di classificazione a quello del medico esperto. Chiedi a [@MarcoParola](https://github.com/MarcoParola) il dataset
 - [ ] Implementare un classificatore knn (con scikit) e vedere se la classificazione knn funziona meglio usando le feature della classificazione o le feature proiettate
