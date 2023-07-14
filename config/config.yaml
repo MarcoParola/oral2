@@ -19,6 +19,7 @@ train:
   batch_size: 32
   lr: 0.001
   accelerator: "gpu"
+  devices: 1
   max_epochs: 10
 
 log:  

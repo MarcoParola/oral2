@@ -33,7 +33,8 @@ class OralClassifierModule(LightningModule):
         self._common_step(batch, batch_idx, "test")
 
     def predict_step(self, batch, batch_idx, dataloader_idx=None):
-        x = self.preprocess(batch)
+        img, label = batch
+        x = self.preprocess(img)
         return self(x)
 
     def configure_optimizers(self):

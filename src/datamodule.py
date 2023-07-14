@@ -4,10 +4,15 @@ from pytorch_lightning import LightningDataModule
 from src.dataset import OralClassificationDataset
 
 class OralClassificationDataModule(LightningDataModule):
-    def __init__(self, train, test, batch_size=32, transform=None):
+    def __init__(self, train, test, batch_size=32, train_transform=None, test_transform=None, transform=None):
         super().__init__()
-        self.train_dataset = OralClassificationDataset(train, transform=transform)
-        self.test_dataset = OralClassificationDataset(test, transform=None)
+        if train_transform is None:
+            train_transform = transform
+        if test_transform is None:
+            test_transform = transform
+
+        self.train_dataset = OralClassificationDataset(train, transform=train_transform)
+        self.test_dataset = OralClassificationDataset(test, transform=test_transform)
         self.batch_size = batch_size
         
 

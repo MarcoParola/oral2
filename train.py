@@ -3,6 +3,7 @@ import hydra
 import torch
 import torchvision
 import pytorch_lightning
+from sklearn.metrics import classification_report
 
 from src.classifier import OralClassifierModule
 from src.datamodule import OralClassificationDataModule
@@ -47,18 +48,27 @@ def main(cfg):
             torchvision.transforms.Resize(cfg.dataset.resize, antialias=True),
             torchvision.transforms.CenterCrop(cfg.dataset.resize),
             torchvision.transforms.ToTensor(),
-        ])
+        ]),
     )
 
     trainer = pytorch_lightning.Trainer(
         logger=loggers,
         callbacks=callbacks,
         accelerator=cfg.train.accelerator,
+        devices=cfg.train.devices,
         log_every_n_steps=1,
         max_epochs=cfg.train.max_epochs,
     )
     
     trainer.fit(model, data)
+    predictions = trainer.predict(model, data)   # TODO: inferenza su piu devices
+    
+    predictions = torch.cat(predictions, dim=0)
+    predictions = torch.argmax(predictions, dim=1)
+
+    gt = torch.cat([y for _, y in data.test_dataloader()], dim=0)
+    
+    print(classification_report(gt, predictions))
 
     if cfg.train.save_path != "":
         trainer.save_checkpoint(cfg.train.save_path)
