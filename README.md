@@ -16,6 +16,10 @@ pip install -r requirements.txt
 Io ho usato `Python 3.11`.
 Per la gestion del venv puoi anche usare conda come ti torna comodo
 
+### Dataset
+
+Il dataset te lo mando io quando ne avrai bisogno, quello di Marco non va bene perchè ci sono degli errori. Ti mando poi io la versione sistemata e già splittata
+
 ### Esempi
 
 Esempio train
