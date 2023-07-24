@@ -7,6 +7,7 @@ __pycache__/
 /.hydra
 /checkpoints
 /wandb
+/lightning_logs
 
 *.log
 *.pth

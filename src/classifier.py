@@ -45,12 +45,11 @@ class OralClassifierModule(LightningModule):
         x = self.preprocess(img)
         y_hat = self(x)
         loss = self.loss(y_hat, label)
-        
+
         with torch.no_grad():
             pred = torch.argmax(y_hat, dim=1)
             acc = (pred == label).float().mean()
             self.log(f"{stage}_acc", acc, on_step=True)
 
         self.log(f"{stage}_loss", loss, on_step=True)
-
         return loss
