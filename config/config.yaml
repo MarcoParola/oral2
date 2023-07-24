@@ -25,3 +25,7 @@ train:
 log:  
   wandb: False
   tensorboard: False
+
+wandb:
+  entity: mlpi
+  project: oral2

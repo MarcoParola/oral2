@@ -6,6 +6,7 @@ __pycache__/
 /outputs
 /.hydra
 /checkpoints
+/wandb
 
 *.log
 *.pth

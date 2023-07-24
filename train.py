@@ -3,10 +3,18 @@ import hydra
 import torch
 import torchvision
 import pytorch_lightning
+from omegaconf import OmegaConf
+import flatdict
 from sklearn.metrics import classification_report
 
 from src.classifier import OralClassifierModule
 from src.datamodule import OralClassificationDataModule
+
+
+def hp_from_cfg(cfg):
+    cfg = OmegaConf.to_container(cfg, resolve=True)
+    return dict(flatdict.FlatDict(cfg, delimiter="/"))
+
 
 @hydra.main(version_base=None, config_path="./config", config_name="config")
 def main(cfg):
