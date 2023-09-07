@@ -27,6 +27,13 @@ python -m scripts.simplify-dataset --folder data
 python -m scripts.split-dataset --folder data
 ```
 
+You can use the `dataset-stats.py` script to print the class occurrences for each dataset.
+```
+python -m scripts.dataset-stats --dataset data\dataset.json # entire dataset
+python -m scripts.dataset-stats --dataset data\train.json # training set
+python -m scripts.dataset-stats --dataset data\test.json # test set
+```
+
 
 ### DL experiments
 
