@@ -5,7 +5,7 @@ import os
 def check_missing_images(json_dataset):
     images = dict()
     for image in json_dataset["images"]:
-        image_path = os.path.join(os.path.dirname(args.dataset), "images", image["file_name"])
+        image_path = os.path.join(os.path.dirname(args.dataset), "oral1", image["file_name"])
         if not os.path.exists(image_path):
             print("Missing image (in images):", image_path)
         images[image["id"]] = image
@@ -15,7 +15,7 @@ def check_missing_images(json_dataset):
             print("Missing image ID (in annotations):", annotation["image_id"])
             continue
         image = images[annotation["image_id"]]
-        image_path = os.path.join(os.path.dirname(args.dataset), "images", image["file_name"])
+        image_path = os.path.join(os.path.dirname(args.dataset), "oral1", image["file_name"])
         if not os.path.exists(image_path):
             print("Missing image (in annotations):", image_path)
 
