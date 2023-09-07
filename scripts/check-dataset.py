@@ -3,11 +3,8 @@ import json
 import os
 
 parser = argparse.ArgumentParser()
-
 parser.add_argument("--dataset", type=str, required=True)
-
 args = parser.parse_args()
-
 dataset = json.load(open(args.dataset, "r"))
 
 images = dict()
@@ -26,3 +23,4 @@ for annotation in dataset["annotations"]:
     image_path = os.path.join(os.path.dirname(args.dataset), "images", image["file_name"])
     if not os.path.exists(image_path):
         print("Missing image (in annotations):", image_path)
+
