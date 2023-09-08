@@ -1,4 +1,7 @@
 # **Oral2**
+[![license](https://img.shields.io/github/license/MarcoParola/torre-clima?style=plastic)]()
+[![size](https://img.shields.io/github/languages/code-size/MarcoParola/torre-clima?style=plastic)]()
+
 This github repo is to publicly release the code of oral2.
 
 ## Install
@@ -27,7 +30,7 @@ python -m scripts.simplify-dataset --folder data
 python -m scripts.split-dataset --folder data
 ```
 
-You can use the `dataset-stats.py` script to print the class occurrences for each dataset.
+You can use the `dataset-stats.py`   script to print the class occurrences for each dataset.
 ```
 python -m scripts.dataset-stats --dataset data\dataset.json # entire dataset
 python -m scripts.dataset-stats --dataset data\train.json # training set
@@ -46,7 +49,7 @@ python train.py log.tensorboard=True train.save_path=resnet50.pth
 Esempio pca
 
 ```
-python plot-pca.py --model resnet50.pth  --dataset dataset/oral/test.json
+python plot-pca.py --model resnet50.pth  --dataset data/train.json
 ```
 
 

@@ -8,8 +8,8 @@ model:
 
 
 dataset:
-  train: ./dataset/oral/train.json
-  test: ./dataset/oral/test.json
+  train: ./data/train.json
+  test: ./data/test.json
   resize: 224
 
 
@@ -17,10 +17,10 @@ train:
   save_path: ""
   seed: -1
   batch_size: 32
-  lr: 0.001
+  lr: 0.00005
   accelerator: "gpu"
   devices: 1
-  max_epochs: 10
+  max_epochs: 30
 
 log:  
   wandb: False

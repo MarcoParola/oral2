@@ -28,7 +28,7 @@ class OralClassificationDataset(torch.utils.data.Dataset):
     def __getitem__(self, idx):
         annotation = self.dataset["annotations"][idx]
         image = self.images[annotation["image_id"]]
-        image_path = os.path.join(os.path.dirname(self.annonations), "images", image["file_name"])
+        image_path = os.path.join(os.path.dirname(self.annonations), "oral1", image["file_name"])
         image = Image.open(image_path).convert("RGB")
         
         x, y, w, h = annotation["bbox"]
@@ -46,7 +46,7 @@ if __name__ == "__main__":
     import torchvision
 
     dataset = OralClassificationDataset(
-        "dataset/oral/train.json",
+        "data/oral1/train.json",
         transform=transforms.Compose([
             transforms.Resize((224, 224), antialias=True),
             transforms.ToTensor()
