@@ -14,13 +14,13 @@ dataset:
 
 
 train:
-  save_path: ""
+  save_path: "./outputs/models/"
   seed: -1
   batch_size: 32
-  lr: 0.00005
+  lr: 0.00008
   accelerator: "gpu"
   devices: 1
-  max_epochs: 30
+  max_epochs: 100
 
 log:  
   wandb: False

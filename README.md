@@ -46,6 +46,10 @@ Esempio train
 python train.py log.tensorboard=True train.save_path=resnet50.pth
 ```
 
+```
+python -m tensorboard.main --logdir=logs
+```
+
 Esempio pca
 
 ```

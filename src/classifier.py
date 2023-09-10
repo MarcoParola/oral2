@@ -17,7 +17,6 @@ class OralClassifierModule(LightningModule):
         self.model = getattr(torchvision.models, model)(weights=weights)
         self.model.fc = torch.nn.Linear(self.model.fc.in_features, num_classes)
         self.preprocess = weights.transforms()
-
         self.loss = torch.nn.CrossEntropyLoss()
 
     def forward(self, x):

@@ -8,6 +8,8 @@ from sklearn.metrics import classification_report
 from src.classifier import OralClassifierModule
 from src.datamodule import OralClassificationDataModule
 
+from pytorch_lightning.callbacks.early_stopping import EarlyStopping
+
 @hydra.main(version_base=None, config_path="./config", config_name="config")
 def main(cfg):
 
@@ -20,6 +22,14 @@ def main(cfg):
 
     loggers = list()
     callbacks = list()
+
+    early_stopping_callback = EarlyStopping(
+        monitor='val_loss',
+        mode='min',
+        patience=10,
+    )
+    callbacks.append(early_stopping_callback)
+
     if cfg.log.wandb:
         from pytorch_lightning.loggers import WandbLogger
         import wandb
@@ -53,11 +63,12 @@ def main(cfg):
 
     trainer = pytorch_lightning.Trainer(
         logger=loggers,
-        callbacks=callbacks,
+        callbacks=callbacks,git
         accelerator=cfg.train.accelerator,
         devices=cfg.train.devices,
         log_every_n_steps=1,
         max_epochs=cfg.train.max_epochs,
+        check_val_every_n_epoch=2
     )
     
     trainer.fit(model, data)
