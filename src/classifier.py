@@ -26,8 +26,8 @@ class OralClassifierModule(LightningModule):
         return self._common_step(batch, batch_idx, "train")
 
     def validation_step(self, batch, batch_idx):
-        self._common_step(batch, batch_idx, "val")
-
+        self._common_step(batch, batch_idx, "val") 
+        
     def test_step(self, batch, batch_idx):
         self._common_step(batch, batch_idx, "test")
 

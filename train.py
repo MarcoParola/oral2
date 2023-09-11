@@ -8,7 +8,7 @@ from sklearn.metrics import classification_report
 from src.classifier import OralClassifierModule
 from src.datamodule import OralClassificationDataModule
 
-from pytorch_lightning.callbacks.early_stopping import EarlyStopping
+from src.utils import get_loggers, get_early_stopping
 
 @hydra.main(version_base=None, config_path="./config", config_name="config")
 def main(cfg):
@@ -17,33 +17,14 @@ def main(cfg):
         random_data = os.urandom(4)
         seed = int.from_bytes(random_data, byteorder="big")
         cfg.train.seed = seed
-    
     torch.manual_seed(cfg.train.seed)
 
-    loggers = list()
-    callbacks = list()
-
-    early_stopping_callback = EarlyStopping(
-        monitor='val_loss',
-        mode='min',
-        patience=10,
-    )
-    callbacks.append(early_stopping_callback)
-
-    if cfg.log.wandb:
-        from pytorch_lightning.loggers import WandbLogger
-        import wandb
-        hyperparameters = hp_from_cfg(cfg)
-        wandb.init(entity=cfg.wandb.entity, project=cfg.wandb.project)
-        wandb.config.update(hyperparameters)
-        wandb_logger = WandbLogger()
-        loggers.append(wandb_logger)
     
-    if cfg.log.tensorboard:
-        from pytorch_lightning.loggers import TensorBoardLogger
-        tensorboard_logger = TensorBoardLogger("logs", name="oral")
-        loggers.append(tensorboard_logger)
+    callbacks = list()
+    callbacks.append(get_early_stopping(cfg))
+    loggers = get_loggers(cfg)
 
+    
     model = OralClassifierModule(
         model=cfg.model.name,
         weights=cfg.model.weights,
@@ -52,6 +33,7 @@ def main(cfg):
     )
     data = OralClassificationDataModule(
         train=cfg.dataset.train,
+        val=cfg.dataset.val,
         test=cfg.dataset.test,
         batch_size=cfg.train.batch_size,
         transform=torchvision.transforms.Compose([
@@ -63,7 +45,7 @@ def main(cfg):
 
     trainer = pytorch_lightning.Trainer(
         logger=loggers,
-        callbacks=callbacks,git
+        callbacks=callbacks,
         accelerator=cfg.train.accelerator,
         devices=cfg.train.devices,
         log_every_n_steps=1,
@@ -83,7 +65,7 @@ def main(cfg):
 
     if cfg.train.save_path != "":
         trainer.save_checkpoint(cfg.train.save_path)
-
+    
 
 if __name__ == "__main__":
     main()

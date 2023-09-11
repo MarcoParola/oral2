@@ -9,12 +9,13 @@ model:
 
 dataset:
   train: ./data/train.json
+  val: ./data/val.json
   test: ./data/test.json
   resize: 224
 
 
 train:
-  save_path: "./outputs/models/"
+  save_path: "./models/"
   seed: -1
   batch_size: 32
   lr: 0.00008
