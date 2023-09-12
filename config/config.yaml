@@ -17,8 +17,8 @@ dataset:
 train:
   save_path: "./models/"
   seed: -1
-  batch_size: 32
-  lr: 0.00008
+  batch_size: 64
+  lr: 0.00005
   accelerator: "gpu"
   devices: 1
   max_epochs: 100
