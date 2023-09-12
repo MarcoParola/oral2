@@ -1,6 +1,7 @@
 import torch
 import torchvision
 from pytorch_lightning import LightningModule
+import tensorboard as tb
 
 class OralClassifierModule(LightningModule):
 
