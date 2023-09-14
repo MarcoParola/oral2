@@ -21,9 +21,10 @@ train:
   lr: 0.00008
   accelerator: "gpu"
   devices: 1
-  max_epochs: 10
+  max_epochs: 2
 
 
 log:  
+  path: "./logs/"
   wandb: False
   tensorboard: False

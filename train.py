@@ -14,7 +14,7 @@ from sklearn.utils.multiclass import unique_labels
 from src.classifier import OralClassifierModule
 from src.datamodule import OralClassificationDataModule
 
-from src.utils import get_loggers, get_early_stopping, get_transformations
+from src.utils import *
 
 
 
@@ -71,7 +71,6 @@ def plot_confusion_matrix(y_true, y_pred, classes, normalize=False, title=None, 
 
 
 
-
 @hydra.main(version_base=None, config_path="./config", config_name="config")
 def main(cfg):
 
@@ -116,7 +115,7 @@ def main(cfg):
         log_every_n_steps=1,
         max_epochs=cfg.train.max_epochs,
     )
-    trainer.fit(model, data)
+    #trainer.fit(model, data)
 
     # prediction
     predictions = trainer.predict(model, data)   # TODO: inferenza su piu devices
@@ -127,23 +126,9 @@ def main(cfg):
     print(classification_report(gt, predictions))
 
 
-    writer = SummaryWriter('logs')
-    classes = np.array(['Class 0', 'Class 1', 'Class 2'])
-    cf_matrix = confusion_matrix(gt, predictions)
-    df_cm = pd.DataFrame(cf_matrix / np.sum(cf_matrix, axis=1)[:, None], index=[i for i in classes],
-                         columns=[i for i in classes])
-    plt.figure(figsize=(12, 7))
-    img = sn.heatmap(df_cm, annot=True).get_figure()
-    print(type(img))
-    writer.add_figure("Confusion matrix", img, 0)
-
-    
-    # Define your class labels here
     class_names = np.array(['Class 0', 'Class 1', 'Class 2'])
-
-    # Plot normalized confusion matrix
-    plot_confusion_matrix(gt, predictions, classes=class_names, normalize=True)
-    plt.show()
+    log_dir = 'logs/oral/' + get_last_version('logs/oral')
+    log_confusion_matrix(gt, predictions, classes=class_names, log_dir=log_dir)
 
 
 
