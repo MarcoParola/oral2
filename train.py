@@ -2,10 +2,7 @@ import os
 import hydra
 import torch
 import pytorch_lightning
-import tensorflow as tf
 from sklearn.metrics import classification_report, confusion_matrix
-import re
-import tfplot
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix
@@ -17,14 +14,7 @@ from src.datamodule import OralClassificationDataModule
 from src.utils import *
 
 
-
-import seaborn as sn
-import pandas as pd
-from torch.utils.tensorboard import SummaryWriter
-
-
-
-
+'''
 def plot_confusion_matrix(y_true, y_pred, classes, normalize=False, title=None, cmap=plt.cm.Blues):
     """
     This function prints and plots the confusion matrix.
@@ -68,7 +58,7 @@ def plot_confusion_matrix(y_true, y_pred, classes, normalize=False, title=None, 
                     ha="center", va="center",
                     color="white" if cm[i, j] > thresh else "black")
     fig.tight_layout()
-
+'''
 
 
 @hydra.main(version_base=None, config_path="./config", config_name="config")
