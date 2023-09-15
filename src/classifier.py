@@ -37,6 +37,9 @@ class OralClassifierModule(LightningModule):
         
     def test_step(self, batch, batch_idx):
         self._common_step(batch, batch_idx, "test")
+        output = self(batch)
+        accuracy = accuracy_score(output, batch['target'])
+        self.log('test_accuracy', accuracy)
 
     def predict_step(self, batch, batch_idx, dataloader_idx=None):
         img, label = batch

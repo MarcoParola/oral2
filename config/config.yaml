@@ -13,7 +13,6 @@ dataset:
   test: ./data/test.json
   resize: 224
 
-
 train:
   save_path: "./models/"
   seed: -1
