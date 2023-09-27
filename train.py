@@ -72,7 +72,12 @@ def main(cfg):
     log_dir = 'logs/oral/' + get_last_version('logs/oral')
     log_confusion_matrix(gt, predictions, classes=class_names, log_dir=log_dir) # TODO cambia nome, perchè loggo anche acc
 
-    # TODO save model
+    # save model
+    model_path = os.path.join(cfg.train.save_path, cfg.model.name)
+    os.makedirs(model_path, exist_ok=True)
+    model_name = 'model' + '_' + str(len(os.listdir(model_path))) + '.pt'
+    model_name = os.path.join(model_path, model_name)
+    torch.save(model.state_dict(), model_name)
 
 if __name__ == "__main__":
     main()

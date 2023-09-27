@@ -42,7 +42,7 @@ def get_early_stopping(cfg):
     early_stopping_callback = EarlyStopping(
         monitor='val_loss',
         mode='min',
-        patience=10,
+        patience=15,
     )
     return early_stopping_callback
 
@@ -66,7 +66,7 @@ def get_transformations(cfg):
         torchvision.transforms.RandomHorizontalFlip(p=0.5),
         torchvision.transforms.RandomVerticalFlip(p=0.5),
         torchvision.transforms.RandomRotation(degrees=45),
-        torchvision.transforms.ColorJitter(brightness=0.1, contrast=0.1, saturation=0.1, hue=0.1),
+        #torchvision.transforms.ColorJitter(brightness=0.1, contrast=0.1, saturation=0.1, hue=0.1),
         torchvision.transforms.RandomAffine(degrees=0, translate=(0.1, 0.1), scale=(0.8, 1.2), shear=0),
     ])
     return train_img_tranform, val_img_tranform, test_img_tranform, img_tranform

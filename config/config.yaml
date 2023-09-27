@@ -3,8 +3,23 @@
 
 model:
   num_classes: 3
-  name: resnet50
-  weights: ResNet50_Weights.IMAGENET1K_V2
+  #name: googlenet
+  #name: shufflenet_v2_x0_5
+  #name: regnet_x_1_6gf
+  #name: resnet18
+  #name: regnet_y_8gf
+  #name: regnet_y_1_6gf
+  #name: resnet34
+  name: shufflenet_v2_x1_0
+  #weights: GoogLeNet_Weights.IMAGENET1K_V1
+  #weights: ShuffleNet_V2_X0_5_Weights.IMAGENET1K_V1
+  #weights: RegNet_X_1_6GF_Weights.IMAGENET1K_V1
+  #weights: ResNet18_Weights.IMAGENET1K_V1
+  #weights: RegNet_Y_8GF_Weights.IMAGENET1K_V2
+  #weights: RegNet_Y_1_6GF_Weights.IMAGENET1K_V2
+  #weights: ResNet34_Weights.IMAGENET1K_V1
+  weights: ShuffleNet_V2_X1_0_Weights.IMAGENET1K_V1
+  # non funzionano: alexnet, vit, swint, inception, vgg, squeeznet, mobilenet, convnext_base, densenet, efficientnet_B0
 
 
 dataset:
@@ -20,7 +35,7 @@ train:
   lr: 0.00008
   accelerator: "gpu"
   devices: 1
-  max_epochs: 2
+  max_epochs: 250
 
 
 log:  
