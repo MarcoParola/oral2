@@ -1,6 +1,6 @@
 # **Oral2**
-[![license](https://img.shields.io/github/license/MarcoParola/torre-clima?style=plastic)]()
-[![size](https://img.shields.io/github/languages/code-size/MarcoParola/torre-clima?style=plastic)]()
+[![license](https://img.shields.io/github/license/MarcoParola/oral2?style=plastic)]()
+[![size](https://img.shields.io/github/languages/code-size/MarcoParola/oral2?style=plastic)]()
 
 This github repo is to publicly release the code of oral2.
 
