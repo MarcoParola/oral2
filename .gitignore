@@ -9,6 +9,15 @@ __pycache__/
 /checkpoints
 /runs
 /models
+/src/data
+/src/models
+/share
+/bin
+/lib
+/lib64
+/include
+pyvenv.cfg
+requirements.txt
 
 *.log
 *.pth

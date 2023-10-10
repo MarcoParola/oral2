@@ -10,6 +10,7 @@ from sklearn.utils.multiclass import unique_labels
 
 from src.classifier import OralClassifierModule
 from src.datamodule import OralClassificationDataModule
+from src.loss_log import LossLogCallback
 
 from src.utils import *
 
@@ -25,6 +26,7 @@ def main(cfg):
 
     callbacks = list()
     callbacks.append(get_early_stopping(cfg))
+    callbacks.append(LossLogCallback())
     loggers = get_loggers(cfg)
 
     # model
@@ -33,6 +35,7 @@ def main(cfg):
         weights=cfg.model.weights,
         num_classes=cfg.model.num_classes,
         lr=cfg.train.lr,
+        #max_epochs = cfg.train.max_epochs
     )
 
     # datasets and transformations
@@ -56,8 +59,10 @@ def main(cfg):
         devices=cfg.train.devices,
         log_every_n_steps=1,
         max_epochs=cfg.train.max_epochs,
+        #gradient_clip_val=0.1, 
+        #gradient_clip_algorithm="value"
     )
-    #trainer.fit(model, data)
+    trainer.fit(model, data)
 
 
     # prediction
@@ -68,16 +73,11 @@ def main(cfg):
 
     print(classification_report(gt, predictions))
 
-    class_names = np.array(['Class 0', 'Class 1', 'Class 2'])
+    class_names = np.array(['Neoplastic', 'Aphthous', 'Traumatic'])
     log_dir = 'logs/oral/' + get_last_version('logs/oral')
     log_confusion_matrix(gt, predictions, classes=class_names, log_dir=log_dir) # TODO cambia nome, perchè loggo anche acc
 
-    # save model
-    model_path = os.path.join(cfg.train.save_path, cfg.model.name)
-    os.makedirs(model_path, exist_ok=True)
-    model_name = 'model' + '_' + str(len(os.listdir(model_path))) + '.pt'
-    model_name = os.path.join(model_path, model_name)
-    torch.save(model.state_dict(), model_name)
+
 
 if __name__ == "__main__":
     main()
