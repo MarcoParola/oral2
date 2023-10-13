@@ -5,8 +5,8 @@ import pytorch_lightning
 from sklearn.metrics import classification_report
 import numpy as np
 
-from src.classifier import OralClassifierModule
-from src.datamodule import OralClassificationDataModule
+from src.models.classifier import OralClassifierModule
+from src.datasets.datamodule import OralClassificationDataModule
 from src.loss_log import LossLogCallback
 
 from src.utils import *
