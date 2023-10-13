@@ -43,7 +43,12 @@ python -m scripts.dataset-stats --dataset data\test.json # test set
 Esempio train
 
 ```
-python train.py log.tensorboard=True train.save_path=resnet50.pth
+python train.py log.tensorboard=True
+```
+
+Extract features
+```
+python -m scripts.extract_features load_model=shufflenet_v2_x1_0/model_0.pt
 ```
 
 ```

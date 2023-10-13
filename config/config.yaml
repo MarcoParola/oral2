@@ -1,5 +1,6 @@
 
 # models and weights here: https://pytorch.org/vision/stable/models.html
+load_model: shufflenet_v2_x1_0
 
 model:
   num_classes: 3
