@@ -9,8 +9,6 @@ __pycache__/
 /checkpoints
 /runs
 /models
-/src/data
-/src/models
 /share
 /bin
 /lib

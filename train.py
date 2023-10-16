@@ -2,14 +2,11 @@ import os
 import hydra
 import torch
 import pytorch_lightning
-from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.metrics import classification_report
 import numpy as np
-import matplotlib.pyplot as plt
-from sklearn.metrics import confusion_matrix
-from sklearn.utils.multiclass import unique_labels
 
-from src.classifier import OralClassifierModule
-from src.datamodule import OralClassificationDataModule
+from src.models.classifier import OralClassifierModule
+from src.datasets.datamodule import OralClassificationDataModule
 from src.loss_log import LossLogCallback
 
 from src.utils import *
