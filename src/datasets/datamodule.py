@@ -1,10 +1,12 @@
+import hydra
+
 from torch.utils.data import DataLoader
 from pytorch_lightning import LightningDataModule
 
 from src.datasets.dataset import OralClassificationDataset
 
 class OralClassificationDataModule(LightningDataModule):
-    def __init__(self, train, val, test, batch_size=32, train_transform=None, val_transform=None, test_transform=None, transform=None):
+    def __init__(self, train, val, test, crop, batch_size=32, train_transform=None, val_transform=None, test_transform=None, transform=None):
         super().__init__()
         if train_transform is None:
             train_transform = transform
@@ -13,9 +15,9 @@ class OralClassificationDataModule(LightningDataModule):
         if val_transform is None:
             val_transform = transform
 
-        self.train_dataset = OralClassificationDataset(train, transform=train_transform)
-        self.val_dataset = OralClassificationDataset(val, transform=val_transform)
-        self.test_dataset = OralClassificationDataset(test, transform=test_transform)
+        self.train_dataset = OralClassificationDataset(train, crop, transform=train_transform)
+        self.val_dataset = OralClassificationDataset(val, crop, transform=val_transform)
+        self.test_dataset = OralClassificationDataset(test, crop, transform=test_transform)
         self.batch_size = batch_size
         
 

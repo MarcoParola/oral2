@@ -25,6 +25,7 @@ dataset:
   val: ./data/val.json
   test: ./data/test.json
   resize: 224
+  crop: True
 
 train:
   save_path: "./models/"
@@ -35,8 +36,12 @@ train:
   devices: 1
   max_epochs: 1
 
+checkpoint:
+  version: 0
 
 log:  
   path: "./logs/"
   wandb: False
   tensorboard: True
+
+

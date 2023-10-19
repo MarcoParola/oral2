@@ -42,6 +42,7 @@ def main(cfg):
         train=cfg.dataset.train,
         val=cfg.dataset.val,
         test=cfg.dataset.test,
+        crop = cfg.dataset.crop,
         batch_size=cfg.train.batch_size,
         train_transform = train_img_tranform,
         val_transform = val_img_tranform,
