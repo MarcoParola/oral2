@@ -30,6 +30,8 @@ python -m scripts.simplify-dataset --folder data
 python -m scripts.split-dataset --folder data
 ```
 
+### Data visualization
+
 You can use the `dataset-stats.py`   script to print the class occurrences for each dataset.
 ```
 python -m scripts.dataset-stats --dataset data\dataset.json # entire dataset
@@ -37,6 +39,10 @@ python -m scripts.dataset-stats --dataset data\train.json # training set
 python -m scripts.dataset-stats --dataset data\test.json # test set
 ```
 
+Use the following command to visualize the dataset bbox distribution: 
+```
+python scripts\plot-distribution.py --dataset data\dataset.json
+```
 
 ### DL experiments
 
@@ -61,4 +67,24 @@ Esempio pca
 python plot-pca.py --model resnet50.pth  --dataset data/train.json
 ```
 
+Ho aggiunto le metriche per il calcolo della spiegabilità che valutano la simiraità tra due ranking.
+Si usano due metriche `Spearman Footrule` e `Kendall Tau`. 
+Andrà usato più o meno così:
 
+```
+from src.utils import convert_arrays_to_integers
+from src.metrics import spearman_footrule_distance, kendall_tau_distance
+
+vector1 = ['a','b','c','d', 'e']
+vector2 = ['e','c','d','b', 'a']
+
+print("vector1:", vector1)
+print("vector2:", vector2)
+
+vector1, vector2 = convert_arrays_to_integers(vector1, vector2)
+
+print("ranked vector1:", vector1)
+print("ranked vector2:", vector2)
+print("Spearman distance:", spearman_footrule_distance(vector1, vector2))
+print("Kendall distance:", kendall_tau_distance(vector1, vector2))
+```

@@ -110,3 +110,24 @@ def get_last_version(path):
     last_folder = max(folders, key=lambda f: int(f.split('_')[1]))
     return last_folder  
 
+
+def convert_arrays_to_integers(array1, array2):
+    """
+    Given two arrays of strings, return two arrays of integers
+    such that the integers are a mapping of the strings.  If a
+    string in array1 is not in array2, it is mapped to the next
+    integer in the sequence.  If a string in array2 is not in
+    array1, it is mapped to the next integer in the sequence.
+    """
+    string_to_int_mapping = {}
+    next_integer = 0
+    
+    for string in array1:
+        if string not in string_to_int_mapping:
+            string_to_int_mapping[string] = next_integer
+            next_integer += 1
+    
+    result_array1 = [string_to_int_mapping[string] for string in array1]
+    result_array2 = [string_to_int_mapping.get(string, next_integer) for string in array2]
+    return result_array1, result_array2
+
