@@ -9,8 +9,9 @@ from src.models.classifier import OralClassifierModule
 from src.datasets.datamodule import OralClassificationDataModule
 from src.loss_log import LossLogCallback
 
-from src.utils import *
 
+from test import predict
+from src.utils import *
 
 @hydra.main(version_base=None, config_path="./config", config_name="config")
 def main(cfg):
@@ -61,18 +62,8 @@ def main(cfg):
     )
     trainer.fit(model, data)
 
-
-    # prediction
-    predictions = trainer.predict(model, data)   # TODO: inferenza su piu devices
-    predictions = torch.cat(predictions, dim=0)
-    predictions = torch.argmax(predictions, dim=1)
-    gt = torch.cat([y for _, y in data.test_dataloader()], dim=0)
-
-    print(classification_report(gt, predictions))
-
-    class_names = np.array(['Neoplastic', 'Aphthous', 'Traumatic'])
-    log_dir = 'logs/oral/' + get_last_version('logs/oral')
-    log_confusion_matrix(gt, predictions, classes=class_names, log_dir=log_dir) # TODO cambia nome, perchè loggo anche acc
+    #prediction
+    predict(trainer, model, data)
 
 
 

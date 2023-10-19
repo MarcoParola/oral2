@@ -1,7 +1,7 @@
 from torch.utils.data import DataLoader
 from pytorch_lightning import LightningDataModule
 
-from src.dataset import OralClassificationDataset
+from src.datasets.dataset import OralClassificationDataset
 
 class OralClassificationDataModule(LightningDataModule):
     def __init__(self, train, val, test, batch_size=32, train_transform=None, val_transform=None, test_transform=None, transform=None):
