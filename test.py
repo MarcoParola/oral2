@@ -8,11 +8,12 @@ import numpy as np
 from src.models.classifier import OralClassifierModule
 from src.datasets.datamodule import OralClassificationDataModule
 from src.loss_log import LossLogCallback
+from src.saliency.grad_cam import OralGradCam
 
 from src.utils import *
 
 def predict(trainer, model, data):
-    predictions = trainer.predict(model, data)  # TODO: inferenza su piu devices
+    predictions = trainer.predict(model, data)
     predictions = torch.cat(predictions, dim=0)
     predictions = torch.argmax(predictions, dim=1)
     gt = torch.cat([y for _, y in data.test_dataloader()], dim=0)
@@ -21,10 +22,15 @@ def predict(trainer, model, data):
 
     class_names = np.array(['Neoplastic', 'Aphthous', 'Traumatic'])
     log_dir = 'logs/oral/' + get_last_version('logs/oral')
-    log_confusion_matrix(gt, predictions, classes=class_names, log_dir=log_dir)  # TODO cambia nome, perchè loggo anche acc
+    log_confusion_matrix(gt, predictions, classes=class_names, log_dir=log_dir)
+
+    OralGradCam.generate_saliency_maps_grad_cam(model, data.test_dataloader(), predictions)
+
+
 
 @hydra.main(version_base=None, config_path="./config", config_name="config")
 def main(cfg):
+    #This main load a checkpoint saved and perform test on it
 
     # to test is needed: trainer, model and data
 
@@ -59,8 +65,8 @@ def main(cfg):
         test_transform=test_img_tranform,
         transform=img_tranform,
     )
-
     predict(trainer, model, data)
+
 
 if __name__ == "__main__":
     main()
