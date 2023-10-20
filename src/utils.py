@@ -108,5 +108,20 @@ def get_last_version(path):
     folders = [f for f in folders if re.match(r'version_[0-9]+', f)]
     # get the last folder with the highest number
     last_folder = max(folders, key=lambda f: int(f.split('_')[1]))
-    return last_folder  
+    return last_folder
+
+
+def get_last_checkpoint(version):
+    checkpoint_dir = "logs/oral/version_" + str(version) + "/checkpoints"
+    # all files in the directory
+    all_files = [f for f in os.listdir(checkpoint_dir) if os.path.isfile(os.path.join(checkpoint_dir, f))]
+    # list of checkpoints
+    checkpoint_files = [f for f in all_files if f.endswith('.ckpt')]
+    # sort checkpoints
+    checkpoint_files_sorted = sorted(checkpoint_files)
+    # get last checkpoint
+    if checkpoint_files_sorted:
+        last_checkpoint = checkpoint_files_sorted[-1]
+        full_path = os.path.join(checkpoint_dir, last_checkpoint)
+        return full_path
 

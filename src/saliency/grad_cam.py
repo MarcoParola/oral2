@@ -1,14 +1,10 @@
-import torch
 from pytorch_grad_cam import GradCAM, HiResCAM, ScoreCAM, GradCAMPlusPlus, AblationCAM, XGradCAM, EigenCAM, FullGrad
 from pytorch_grad_cam.utils.model_targets import ClassifierOutputTarget
 from pytorch_grad_cam.utils.image import show_cam_on_image
-from torchvision.models import resnet50
-import torchvision.transforms as transforms
-from matplotlib import pyplot as plt
 import numpy as np
 from PIL import Image
 import os
-from src.datasets.dataset import OralClassificationDataset
+import hydra
 
 
 class OralGradCam:
@@ -38,13 +34,13 @@ class OralGradCam:
 
                 # put the generated map over the starting image
                 visualization_image = Image.fromarray((visualization * 255).astype(np.uint8))
-                # TODO: salvare dentro una cartella di hydra invece che in una cartella a caso come ora
                 # create the folder in which save the images
-                os.makedirs('prova', exist_ok=True)
-                visualization_image.save(f'prova/saliency_map_batch_{batch_index}_image_{image_index}.jpg')
+                os.makedirs(f'{hydra.core.hydra_config.HydraConfig.get().runtime.output_dir}/grad_cam_maps', exist_ok=True)
+                visualization_image.save(f'{hydra.core.hydra_config.HydraConfig.get().runtime.output_dir}/grad_cam_maps/saliency_map_batch_{batch_index}_image_{image_index}.jpg')
 
+                # TODO: write proper tests for grad-cam saliency maps
                 # this is just to be sure that the corresponds to the ones with the overlapped map
-                #if(image_index==0 and batch_index==0):
+                # if(image_index==0 and batch_index==0):
                 #    image = image.permute(1, 2, 0).numpy()
                 #    image = Image.fromarray((image * 255).astype(np.uint8))
                 #    image.save("first_image_no_map.jpg")

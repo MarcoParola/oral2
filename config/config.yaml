@@ -34,10 +34,13 @@ train:
   lr: 0.00004
   accelerator: "cpu"
   devices: 1
-  max_epochs: 1
+  max_epochs: 2
 
 checkpoint:
   version: 0
+
+saliency:
+  method: "none"
 
 log:  
   path: "./logs/"
