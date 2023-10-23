@@ -63,72 +63,56 @@ class OralClassifierModule(LightningModule):
         self.log(f"{stage}_loss", loss, on_step=True, on_epoch=True)
         return loss
 
+    def remove_network_end(self):
+        self.model.network_end = torch.nn.Identity()
+
     def _set_model_classifier(self, weights_cls, num_classes): 
         weights_cls = str(weights_cls)
         if "ConvNeXt" in weights_cls:
             self.model.classifier = torch.nn.Sequential(
                 torch.nn.Dropout(0.5),
                 torch.nn.Flatten(1),
-                torch.nn.Linear(self.model.classifier[2].in_features, 64),
-                torch.nn.ReLU(),
-                torch.nn.Dropout(0.5),
-                torch.nn.Linear(64, num_classes)
+                torch.nn.Linear(self.model.classifier[2].in_features, 64)
             )
         elif "EfficientNet" in weights_cls:
             self.model.classifier = torch.nn.Sequential(
                 torch.nn.Dropout(0.5),
-                torch.nn.Linear(self.model.classifier[1].in_features, 64),
-                torch.nn.ReLU(),
-                torch.nn.Dropout(0.5),
-                torch.nn.Linear(64, num_classes)
+                torch.nn.Linear(self.model.classifier[1].in_features, 64)
             )
         elif "MobileNet" in weights_cls or "VGG" in weights_cls:
             self.model.classifier = torch.nn.Sequential(
                 torch.nn.Dropout(0.5),
-                torch.nn.Linear(self.model.classifier[0].in_features, 64),
-                torch.nn.ReLU(),
-                torch.nn.Dropout(0.5),
-                torch.nn.Linear(64, num_classes)
+                torch.nn.Linear(self.model.classifier[0].in_features, 64)
             )
         elif "DenseNet" in weights_cls:
             self.model.classifier = torch.nn.Sequential(
                 torch.nn.Dropout(0.5),
-                torch.nn.Linear(self.model.classifier.in_features, 64),
-                torch.nn.ReLU(),
-                torch.nn.Dropout(0.5),
-                torch.nn.Linear(64, num_classes)
+                torch.nn.Linear(self.model.classifier.in_features, 64)
             )
         elif "MaxVit" in weights_cls:
             self.model.classifier = torch.nn.Sequential(
                 torch.nn.Dropout(0.5),
                 torch.nn.AdaptiveAvgPool2d(1),
                 torch.nn.Flatten(),
-                torch.nn.Linear(self.model.classifier[5].in_features, 64),
-                torch.nn.ReLU(),
-                torch.nn.Dropout(0.5),
-                torch.nn.Linear(64, num_classes)
+                torch.nn.Linear(self.model.classifier[5].in_features, 64)
             )
         elif "ResNet" in weights_cls or "RegNet" in weights_cls or "GoogLeNet" in weights_cls:
             self.model.fc = torch.nn.Sequential(
                 torch.nn.Dropout(0.5),
-                torch.nn.Linear(self.model.fc.in_features, 64),
-                torch.nn.ReLU(),
-                torch.nn.Dropout(0.5),
-                torch.nn.Linear(64, num_classes)
+                torch.nn.Linear(self.model.fc.in_features, 64)
             )
         elif "Swin" in weights_cls:
             self.model.head = torch.nn.Sequential(
                 torch.nn.Dropout(0.5),
-                torch.nn.Linear(self.model.head.in_features, 64),
-                torch.nn.ReLU(),
-                torch.nn.Dropout(0.5),
-                torch.nn.Linear(64, num_classes)
+                torch.nn.Linear(self.model.head.in_features, 64)
             )
         elif "ViT" in weights_cls:
             self.model.heads = torch.nn.Sequential(
                 torch.nn.Dropout(0.5),
-                torch.nn.Linear(self.model.hidden_dim, 64),
-                torch.nn.ReLU(),
-                torch.nn.Dropout(0.5),
-                torch.nn.Linear(64, num_classes)
+                torch.nn.Linear(self.model.hidden_dim, 64)
             )
+        self.model.network_end = torch.nn.Sequential(
+            torch.nn.ReLU(),
+            torch.nn.Dropout(0.5),
+            torch.nn.Linear(64, num_classes)
+        )

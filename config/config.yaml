@@ -16,8 +16,8 @@ load_model: shufflenet_v2_x1_0
 
 model:
   num_classes: 3
-  name: resnet50
-  weights: ResNet50_Weights.IMAGENET1K_V2
+  name: swin_t
+  weights: Swin_T_Weights.IMAGENET1K_V1
 
 
 dataset:
@@ -33,10 +33,13 @@ train:
   lr: 0.00004
   accelerator: "gpu"
   devices: 1
-  max_epochs: 1
+  max_epochs: 3
 
 
 log:  
   path: "./logs/"
   wandb: False
   tensorboard: True
+
+features_extractor:
+  checkpoint_path: ./logs/oral/version_0/checkpoints/epoch=2-step=18.ckpt
