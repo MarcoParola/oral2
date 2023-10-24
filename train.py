@@ -7,7 +7,7 @@ import numpy as np
 
 from src.models.classifier import OralClassifierModule
 from src.datasets.datamodule import OralClassificationDataModule
-from src.loss_log import LossLogCallback
+from src.log import LossLogCallback, get_loggers
 
 from src.utils import *
 
