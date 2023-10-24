@@ -7,6 +7,7 @@ from sklearn.metrics import classification_report
 from src.models.classifier import OralClassifierModule
 from src.datasets.datamodule import OralClassificationDataModule
 from src.saliency.grad_cam import OralGradCam
+from src.saliency.shap import OralShap
 from src.utils import *
 
 
@@ -20,11 +21,12 @@ def predict(trainer, model, data, saliency_map_flag):
 
     class_names = np.array(['Neoplastic', 'Aphthous', 'Traumatic'])
     log_dir = 'logs/oral/' + get_last_version('logs/oral')
-    log_confusion_matrix(gt, predictions, classes=class_names, log_dir=log_dir)
+    #log_confusion_matrix(gt, predictions, classes=class_names, log_dir=log_dir)
 
     if saliency_map_flag == "grad-cam":
         OralGradCam.generate_saliency_maps_grad_cam(model, data.test_dataloader(), predictions)
-    # elif caso shap
+    elif saliency_map_flag == "shap":
+        OralShap.create_maps_shap(model, data.test_dataloader())
 
 
 @hydra.main(version_base=None, config_path="./config", config_name="config")
@@ -62,8 +64,7 @@ def main(cfg):
         test_transform=test_img_tranform,
         transform=img_tranform,
     )
-    saliency_maps_flag = cfg.saliency.method
-    predict(trainer, model, data, saliency_maps_flag)
+    predict(trainer, model, data, cfg.saliency.method)
 
 
 if __name__ == "__main__":

@@ -64,7 +64,7 @@ def main(cfg):
     trainer.fit(model, data)
 
     #prediction
-    predict(trainer, model, data)
+    predict(trainer, model, data, cfg.saliency.method)
 
 
 

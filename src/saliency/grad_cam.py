@@ -48,10 +48,9 @@ class OralGradCam:
 
 
     def find_last_conv_layer(model):
-        layer_names = [name for name, module in model.model.named_children() if "layer" in name]
+        layer_names = [name for name, module in model.model.named_children() if "layer" or "Fire" in name]
         last_layer_name = layer_names[-1]
         last_block = getattr(model.model, last_layer_name)[-1]
         target_layers = [last_block]
-
         return target_layers
 
