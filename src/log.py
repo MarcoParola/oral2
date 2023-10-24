@@ -21,4 +21,26 @@ class LossLogCallback(pl.Callback):
                                     'val':self.val_losses[i]}, i)
         writer.close()
 
+
+def get_loggers(cfg):
+    """Returns a list of loggers
+    cfg: hydra config
+    """
+    loggers = list()
+    if cfg.log.wandb:
+        from pytorch_lightning.loggers import WandbLogger
+        import wandb
+        hyperparameters = hp_from_cfg(cfg)
+        wandb.init(entity=cfg.wandb.entity, project=cfg.wandb.project)
+        wandb.config.update(hyperparameters)
+        wandb_logger = WandbLogger()
+        loggers.append(wandb_logger)
+    
+    if cfg.log.tensorboard:
+        from pytorch_lightning.loggers import TensorBoardLogger
+        tensorboard_logger = TensorBoardLogger(cfg.log.path , name="oral")
+        loggers.append(tensorboard_logger)
+
+    return loggers
+
         
