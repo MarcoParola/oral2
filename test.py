@@ -2,6 +2,7 @@ import re
 
 import torch
 import pytorch_lightning
+import omegaconf
 from sklearn.metrics import classification_report
 
 from src.models.classifier import OralClassifierModule
@@ -9,6 +10,7 @@ from src.datasets.datamodule import OralClassificationDataModule
 from src.saliency.grad_cam import OralGradCam
 from src.saliency.shap import OralShap
 from src.utils import *
+from src.log import get_loggers
 
 
 def predict(trainer, model, data, saliency_map_flag):
@@ -21,7 +23,7 @@ def predict(trainer, model, data, saliency_map_flag):
 
     class_names = np.array(['Neoplastic', 'Aphthous', 'Traumatic'])
     log_dir = 'logs/oral/' + get_last_version('logs/oral')
-    #log_confusion_matrix(gt, predictions, classes=class_names, log_dir=log_dir)
+    log_confusion_matrix(gt, predictions, classes=class_names, log_dir=log_dir)
 
     if saliency_map_flag == "grad-cam":
         OralGradCam.generate_saliency_maps_grad_cam(model, data.test_dataloader(), predictions)
@@ -31,7 +33,20 @@ def predict(trainer, model, data, saliency_map_flag):
 
 @hydra.main(version_base=None, config_path="./config", config_name="config")
 def main(cfg):
-    # This main load a checkpoint saved and perform test on it
+    # this main load a checkpoint saved and perform test on it
+
+    # save the passed version number before overwriting the configuration with training configuration
+    version = str(cfg.checkpoint.version)
+    # save the passed saliency map generation method before overwriting the configuration with training configuration
+    saliency_map_method = cfg.saliency.method
+    # find the hydra_run_timestamp.txt file
+    f = open('./logs/oral/version_' + version + '/hydra_run_timestamp.txt', "r")
+    # read the timestamp inside hydra_run_timestamp.txt
+    timestamp = f.read()
+    # use the timestamp to build the path to hydra configuration
+    path = './outputs/' + timestamp + '/.hydra/config.yaml'
+    # load the configuration used during training
+    cfg = omegaconf.OmegaConf.load(path)
 
     # to test is needed: trainer, model and data
     # trainer
@@ -48,7 +63,7 @@ def main(cfg):
 
     # model
     # get the model already trained from checkpoints, default checkpoint is version_0, otherwise specify by cli
-    model = OralClassifierModule.load_from_checkpoint( get_last_checkpoint(str(cfg.checkpoint.version)) )
+    model = OralClassifierModule.load_from_checkpoint(get_last_checkpoint(version))
     model.eval()
 
     # data
@@ -64,7 +79,7 @@ def main(cfg):
         test_transform=test_img_tranform,
         transform=img_tranform,
     )
-    predict(trainer, model, data, cfg.saliency.method)
+    predict(trainer, model, data, saliency_map_method)
 
 
 if __name__ == "__main__":

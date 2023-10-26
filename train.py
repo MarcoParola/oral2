@@ -7,8 +7,7 @@ import numpy as np
 
 from src.models.classifier import OralClassifierModule
 from src.datasets.datamodule import OralClassificationDataModule
-from src.log import LossLogCallback, get_loggers
-
+from src.log import LossLogCallback, get_loggers, HydraTimestampRunCallback
 
 from test import predict
 from src.utils import *
@@ -25,6 +24,7 @@ def main(cfg):
     callbacks = list()
     callbacks.append(get_early_stopping(cfg))
     callbacks.append(LossLogCallback())
+    callbacks.append(HydraTimestampRunCallback())
     loggers = get_loggers(cfg)
 
     # model
