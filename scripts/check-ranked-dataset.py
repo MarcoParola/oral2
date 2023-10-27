@@ -3,24 +3,34 @@ import json
 import os
 import pandas as pd
 
-def check_missing_images(ranked_dataset, original_dataset):
-    ranked_images=[]
-    for i in range(0, len(ranked_dataset)):
-        if ranked_dataset.loc[i, "case_name"] not in ranked_images:
-            ranked_images.append(ranked_dataset.loc[i, "case_name"])
-        if ranked_dataset.loc[i, "case_name_pos"] not in ranked_images:
-            ranked_images.append(ranked_dataset.loc[i, "case_name_pos"])
-        if ranked_dataset.loc[i, "case_name_neg"] not in ranked_images:
-            ranked_images.append(ranked_dataset.loc[i, "case_name_neg"])
+def check_missing_images(original_dataset, ranking):
+
+    anchors = list(ranking.columns)
+    # remove 'id_casi' and 'TIPO DI ULCERA'
+    anchors.pop(0)
+    anchors.pop(0)
+
+    ranked_images=[case_id for case_id in list(ranking['id_casi']) if case_id not in anchors]
+    # remove 'id_casi' and '-1'
+    ranked_images.pop(0)
+    ranked_images.pop(0)
+
+    total_size1 = len(ranked_images)
+    total_size2 = len(anchors)
 
     i=0
     original_images=[]
     for i in range(0, len(original_dataset["images"])):
         if original_dataset["images"][i]["file_name"] in ranked_images:
             ranked_images.remove(original_dataset["images"][i]["file_name"])
-    
-    print("Missing images found: " + str(len(ranked_images)))
+        if original_dataset["images"][i]["file_name"] in anchors:
+            anchors.remove(original_dataset["images"][i]["file_name"])
+
+    print("Missing images found: " + str(len(ranked_images)) + "/" + str(total_size1))
     print(ranked_images)
+
+    print("Missing anchor images found: " + str(len(anchors)) + "/" + str(total_size2))
+    print(anchors)
 
 
 if __name__ == '__main__':
@@ -30,17 +40,18 @@ if __name__ == '__main__':
          "--original_dataset" valued by the json file path of the original dataset
     '''
     parser = argparse.ArgumentParser()
-    parser.add_argument("--ranked_dataset", type=str, required=True)
     parser.add_argument("--original_dataset", type=str, required=True)
+    parser.add_argument("--ranking", type=str, required=True)
     args = parser.parse_args()
-    #./data/oral_ranked_dataset.csv 
-    ranked_dataset = pd.read_csv (open(args.ranked_dataset, "r"),
-                 sep=';',
-                 engine='python')
     
     #./data/dataset.json 
     with open(args.original_dataset, "r") as f:
         original_dataset = json.load(f)
 
-    check_missing_images(ranked_dataset, original_dataset)
+    #./data/ranking.csv 
+    ranking = pd.read_csv(open(args.ranking, "r"),
+                 sep=';',
+                 engine='python')
+
+    check_missing_images(original_dataset, ranking)
 
