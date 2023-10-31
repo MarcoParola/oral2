@@ -3,7 +3,7 @@
 load_model: shufflenet_v2_x1_0
 
 # ResNet50_Weights.IMAGENET1K_V2 epoch:[71] version:[1] lr:[0.00008]
-# GoogLeNet_Weights.IMAGENET1K_V1 52 epoch:[52] version:[2] lr:[0.00008]
+# GoogLeNet_Weights.IMAGENET1K_V1 epoch:[52] version:[2] lr:[0.00008]
 # ViT_B_16_Weights.IMAGENET1K_SWAG_LINEAR_V1 epoch:[87] version:[5] lr:[0.00008]
 # EfficientNet_B3_Weights.IMAGENET1K_V1 epoch:[78] version:[6] lr:[0.00008]
 # DenseNet161_Weights.IMAGENET1K_V1 epoch:[48] version:[7] lr:[0.00008]
@@ -16,24 +16,25 @@ load_model: shufflenet_v2_x1_0
 
 model:
   num_classes: 3
-  name: swin_t
-  weights: Swin_T_Weights.IMAGENET1K_V1
-
+  name: googlenet
+  weights: GoogLeNet_Weights.IMAGENET1K_V1
+  features_size: 64
 
 dataset:
   train: ./data/train.json
   val: ./data/val.json
   test: ./data/test.json
   resize: 224
+  original: ./data/dataset.json
 
 train:
   save_path: "./models/"
   seed: -1
   batch_size: 64
-  lr: 0.00004
+  lr: 0.00008
   accelerator: "gpu"
   devices: 1
-  max_epochs: 3
+  max_epochs: 100
 
 
 log:  
@@ -42,4 +43,9 @@ log:
   tensorboard: True
 
 features_extractor:
-  checkpoint_path: ./logs/oral/version_0/checkpoints/epoch=2-step=18.ckpt
+  ranking: ./data/ranking.csv
+  preprocessed_ranking: ./data/oral_ranked_dataset.csv
+  #checkpoint_path: oral/version_0/checkpoints/epoch=2-step=18.ckpt
+  checkpoint_path: oral/version_3/checkpoints/epoch=75-step=456.ckpt
+  features_dataset: ./data/features_dataset.csv
+  to_get_feature: ./data/to_get_features_dataset.json

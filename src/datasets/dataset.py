@@ -42,7 +42,7 @@ class OralClassificationDataset(torch.utils.data.Dataset):
         return subimage, category
 
     def get_image_id(self, idx):
-        return self.dataset["annotations"][idx]["id"]
+        return self.dataset["images"][idx]["id"]
 
 
 if __name__ == "__main__":
