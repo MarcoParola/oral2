@@ -5,6 +5,8 @@ import numpy as np
 from PIL import Image
 import os
 import hydra
+import torch
+
 
 
 class OralGradCam:
@@ -47,10 +49,30 @@ class OralGradCam:
 
 
 
-    def find_last_conv_layer(model):
-        layer_names = [name for name, module in model.model.named_children() if "layer" or "Fire" in name]
+# TODO: write a single method that works for both architectures
+    #this for resnet
+    def find_last_conv_layer1(model):
+        for param in model.model.parameters():
+            param.requires_grad = True
+        # "layer" è per resnet, Fire è per squeezenet, per vgg19 c'è da costruire proprio un blocco
+        layer_names = [name for name, module in model.model.named_children() if "layer" in name]
         last_layer_name = layer_names[-1]
         last_block = getattr(model.model, last_layer_name)[-1]
         target_layers = [last_block]
         return target_layers
+
+    #this for vgg19
+    def find_last_conv_layer(model):
+        for param in model.model.parameters():
+            param.requires_grad = True
+        for layer in model.model.named_modules():
+            print(layer)
+        # "layer" è per resnet, Fire è per squeezenet, per vgg19 c'è da costruire proprio un blocco
+        layer_names = [name for name, module in model.model.named_children() if "features" in name]
+        last_layer_name = layer_names[-1]
+        last_block = [getattr(model.model, last_layer_name)[-3], getattr(model.model, last_layer_name)[-2], getattr(model.model, last_layer_name)[-1]]
+        target_layers = last_block
+        return target_layers
+
+
 
