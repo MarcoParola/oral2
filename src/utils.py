@@ -73,7 +73,7 @@ def get_transformations(cfg):
     
 
 
-def log_confusion_matrix(actual, predicted, classes, log_dir):
+def log_report(actual, predicted, classes, log_dir):
     """Logs the confusion matrix to tensorboard
     actual: ground truth
     predicted: predictions
