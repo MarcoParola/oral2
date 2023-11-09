@@ -14,37 +14,31 @@ class OralShap:
                     # print(mod)
                     mod.inplace = False
 
-        class_names = np.array(['Neoplastic', 'Aphthous', 'Traumatic'])
+        class_names = ['Neoplastic', 'Aphthous', 'Traumatic']
 
         os.makedirs('test_shap', exist_ok=True)
         model.eval()
         for batch_index, (images, _) in enumerate(test_loader):
-            print(f"batch number {batch_index}")
-            #for image_index, image in enumerate(images):
-            e = shap.GradientExplainer(model, images, batch_size=64)
-            shap_values, indexes = e.shap_values(images, ranked_outputs=1, nsamples=2)
-            index_names = np.vectorize(lambda x: class_names[x])(indexes)
-            # Iterate through the images and saliency maps
-            i = 0
-            for image, saliency_map, index in zip(images, shap_values, indexes):
-                # Get the class name corresponding to the index
-                class_name = class_names[index]
+            e = shap.GradientExplainer(model, images, batch_size=len(images))
+            shap_values, indexes = e.shap_values(images, ranked_outputs=1, nsamples=64)
+            shap_array = shap_values[0]
+            for i in range(len(indexes)):
+                # get the class name corresponding to the index
+                class_name = class_names[indexes[i]]
 
-                # Overlay the saliency map on the image
-                image_for_plot = image.permute(1, 2, 0).cpu().numpy()
+                # overlay the saliency map on the image
+                image_for_plot = images[i].permute(1, 2, 0).cpu().numpy()
+                current_shap_value = shap_array[i]
+                shap_image = current_shap_value[0]
 
                 fig, ax = plt.subplots()
-                ax.imshow(image_for_plot)  # Convert image tensor to a NumPy array
-                ax.imshow(saliency_map[0][0], cmap='jet', alpha=0.5)  # Overlay saliency map
+                ax.imshow(image_for_plot)
 
-                # Set axis properties (optional)
-                ax.axis('off')
-                ax.set_title(f'Class: {class_name}')
+                ax.imshow((shap_image*255).astype('uint8'), cmap='jet', alpha=0.5)  # Overlay saliency map
 
-                # Save the figure with the overlaid saliency map
-                plt.savefig(os.path.join('test_shap', f'saliency_map_{batch_index}_image_number_{i}_class{index}.png'), bbox_inches='tight')
+                # save the figure with the overlaid saliency map
+                plt.savefig(os.path.join('test_shap', f'saliency_map_batch_{batch_index}_image_number_{i}_class_{class_name}.png'), bbox_inches='tight')
                 plt.close()
-                i += 1
 
 
 
