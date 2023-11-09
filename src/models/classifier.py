@@ -57,9 +57,7 @@ class OralClassifierModule(LightningModule):
 
     def _common_step(self, batch, batch_idx, stage):
         img, label = batch
-        print(img.shape)
         x = self.preprocess(img)
-        print(x.shape)
         y_hat = self(x)
         loss = self.loss(y_hat, label)
         self.log(f"{stage}_loss", loss, on_step=True, on_epoch=True)
