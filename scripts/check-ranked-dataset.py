@@ -29,11 +29,13 @@ def check_missing_images(original_dataset, ranking):
     print("Missing images found: " + str(len(ranked_images)) + "/" + str(total_size1))
     print(ranked_images)
 
-    print("Missing anchor images found: " + str(len(anchors)) + "/" + str(total_size2))
+    print("\nMissing anchor images found: " + str(len(anchors)) + "/" + str(total_size2))
     print(anchors)
 
 
-def check_errors(ranking):
+def check_errors_and_ranking(ranking):
+    print("\nErrors:")
+    mox_rank_for_image={}
     for index, row in ranking.iterrows():
         row_values=[]
         if index>=2:
@@ -46,6 +48,8 @@ def check_errors(ranking):
                          mox = int(value)
                 elif column == 'id_casi':
                     analyzed_image = value
+
+            mox_rank_for_image[analyzed_image] = mox
             found_ranks=[]
             missing_ranks=[]
             duplicate_ranks=[]
@@ -64,6 +68,9 @@ def check_errors(ranking):
                     i+=1
             if len(missing_ranks)!=0 or len(duplicate_ranks)!=0:
                 print("Image:", analyzed_image,"missing ranks:",missing_ranks,"duplicate ranks:",duplicate_ranks)
+    print("\nMax rank for image:")
+    for key in mox_rank_for_image.keys():
+        print(key + " " + str(mox_rank_for_image[key]))
 
 
 if __name__ == '__main__':
@@ -88,5 +95,5 @@ if __name__ == '__main__':
 
     check_missing_images(original_dataset, ranking)
 
-    check_errors(ranking)
+    check_errors_and_ranking(ranking)
 
