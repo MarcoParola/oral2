@@ -20,6 +20,7 @@ Then you can download the oral coco-dataset (both images and json file) from TOD
 Regarding the usage of this repo, in order to reproduce the experiments, we organize the workflow in two part: (i) data preparation and (ii) deep learning experiments.
 
 ### Data preparation
+Network for classification:
 Due to the possibility of errors in the dataset, such as missing images, run the check-dataset.py script to detect such errors. Returns the elements to be removed from the json file (this can be done manually or via a script).
 ```
 python -m scripts.check-dataset --dataset data\coco_dataset.json
@@ -37,6 +38,28 @@ python -m scripts.dataset-stats --dataset data\train.json # training set
 python -m scripts.dataset-stats --dataset data\test.json # test set
 ```
 
+Network for projection:
+When executing the preprocess-ranked-dataset.py script, the following tasks are performed:
+- Dataset cleaning involves removing all empty entries and filling any blank spaces or incorrect ranks with -1.
+- Generation of a triplet dataset comprising an anchor, a case nearer to the anchor than the second case, and a second case.
+- Identification and highlighting of entries with images not present in the dataset.
+```
+python -m scripts.preprocess-ranked-dataset
+```
+
+Upon running the features-extractor.py script, a new dataset is created. Each image_id is associated with the feature extracted from the penultimate layer of the classification network and its corresponding class.
+```
+python -m scripts.features-extractor
+```
+
+Executing the check-ranked-dataset.py script reveals the following information:
+- Detection of missing images within the ranking rows.
+- Identification of missing anchor images in the ranking.
+- Detection of errors such as duplicated ranks and missing ranks for images.
+- Determination of the maximum rank for each image.
+```
+python -m scripts.check-ranked-dataset --original_dataset data/dataset.json --ranking data/ranking.csv 
+```
 
 ### DL experiments
 

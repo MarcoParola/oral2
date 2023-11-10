@@ -2,13 +2,12 @@ import os
 import hydra
 import torch
 import pytorch_lightning
-from sklearn.metrics import classification_report
 import numpy as np
-
+from pytorch_lightning.callbacks import ModelCheckpoint
+from sklearn.metrics import classification_report
 from src.models.classifier import OralClassifierModule
 from src.datasets.datamodule import OralClassificationDataModule
 from src.loss_log import LossLogCallback
-
 from src.utils import *
 
 
@@ -32,7 +31,8 @@ def main(cfg):
         weights=cfg.model.weights,
         num_classes=cfg.model.num_classes,
         lr=cfg.train.lr,
-        #max_epochs = cfg.train.max_epochs
+        max_epochs=cfg.train.max_epochs,
+        features_size=cfg.model.features_size
     )
 
     # datasets and transformations
@@ -48,6 +48,12 @@ def main(cfg):
         transform = img_tranform,
     )
 
+    checkpoint_callback = ModelCheckpoint(
+        save_top_k=1, 
+        monitor="val_loss",
+        mode="min"
+        )
+    callbacks.append(checkpoint_callback)
     # training
     trainer = pytorch_lightning.Trainer(
         logger=loggers,
@@ -72,8 +78,7 @@ def main(cfg):
 
     class_names = np.array(['Neoplastic', 'Aphthous', 'Traumatic'])
     log_dir = 'logs/oral/' + get_last_version('logs/oral')
-    log_confusion_matrix(gt, predictions, classes=class_names, log_dir=log_dir) # TODO cambia nome, perchè loggo anche acc
-
+    log_report(gt, predictions, classes=class_names, log_dir=log_dir)
 
 
 if __name__ == "__main__":
