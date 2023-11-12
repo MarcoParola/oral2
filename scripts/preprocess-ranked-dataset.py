@@ -4,18 +4,18 @@ import json
 import hydra
 import numpy as np
 
-@hydra.main(version_base=None, config_path="./../config", config_name="config")
+@hydra.main(version_base=None, config_path="./../config", config_name="config_projection")
 def main(cfg):
     dataset = pd.read_csv(open(cfg.features_extractor.ranking, "r"),
                  sep=';',
                  engine='python')
 
-    with open(cfg.dataset.original, "r") as f:
+    with open(cfg.features_extractor.original, "r") as f:
         original_dataset = json.load(f)
           
-        correspondences = dict()
-        for image in original_dataset["images"]:
-            correspondences[image["file_name"]] = image["id"]
+    correspondences = dict()
+    for image in original_dataset["images"]:
+        correspondences[image["file_name"]] = image["id"]
 
     not_considered_rows=[]
     not_considered_cols=[]
@@ -24,14 +24,16 @@ def main(cfg):
     for index, row in dataset.iterrows():
         if index>=2:
             safe = False
+            count = 0
             for col_name, value in row.items():
                 if not col_name.startswith('Unnamed'):
                     if col_name != "id_casi" and col_name != "TIPO DI ULCERA" and float(value)>=1.0:
                         safe = True
+                        count+=1
                 else:
                     if col_name not in not_considered_cols:
                         not_considered_cols.append(col_name)
-            if not safe:
+            if not safe or count < 2:
                 not_considered_rows.append(index)
 
     for i in range(0, len(not_considered_rows)):
@@ -71,6 +73,14 @@ def main(cfg):
                                 combinations.append([ids[0], row["id_casi"], row["TIPO DI ULCERA"], 
                                                     ids[1], col1, dataset.loc[0, col1], row[col1], 
                                                     ids[2], col2, dataset.loc[0, col2], row[col2]])
+
+    i=0
+    while i < len(combinations):
+        row = combinations[i]
+        if row[0] == 'NotFound' or row[3] == 'NotFound' or row[7] == 'NotFound':
+            combinations.pop(i)
+        else:
+            i+=1
 
     new_dataset = pd.DataFrame(combinations, columns=['case_id', 'case_name', 'type', 'case_id_pos', 'case_name_pos', 'type_pos', 'rank_pos', 'case_id_neg', 'case_name_neg', 'type_neg', 'rank_neg'])
     new_dataset.to_csv(cfg.features_extractor.preprocessed_ranking, sep=';', index=False, header=True)

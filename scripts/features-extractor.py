@@ -7,10 +7,10 @@ sys.path.append('src')
 from models.classifier import OralClassifierModule
 from utils import *
 sys.path.append('src/datasets')
-from dataset import OralClassificationDataset
+from classifier_dataset import OralClassificationDataset
 
 
-@hydra.main(version_base=None, config_path="./../config", config_name="config")
+@hydra.main(version_base=None, config_path="./../config", config_name="config_projection")
 def main(cfg):
     model = OralClassifierModule.load_from_checkpoint(cfg.log.path+cfg.features_extractor.checkpoint_path)
     model.eval()
@@ -31,13 +31,13 @@ def main(cfg):
         if oral_ranked_dataset.loc[i, "case_id_neg"] not in to_get:
             to_get.append(oral_ranked_dataset.loc[i, "case_id_neg"])
 
-    with open(cfg.dataset.original, "r") as f:
+    with open(cfg.features_extractor.original, "r") as f:
         original_dataset = json.load(f)
 
-    original_dataset["images"] = [item for item in original_dataset["images"] if str(item["id"]) in to_get]
+    original_dataset["images"] = [item for item in original_dataset["images"] if item["id"] in to_get]
     assert len(original_dataset["images"]) <= len(to_get) # in to_get could be present the "NotFound" value
 
-    original_dataset["annotations"] = [item for item in original_dataset["annotations"] if str(item["image_id"]) in to_get]
+    original_dataset["annotations"] = [item for item in original_dataset["annotations"] if item["image_id"] in to_get]
 
     to_get_features_path = cfg.features_extractor.to_get_feature
     #json.dump(original_dataset, open(os.path.join("./data", "to_get_features_dataset.json"), "w"), indent=2)

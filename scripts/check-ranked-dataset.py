@@ -33,9 +33,10 @@ def check_missing_images(original_dataset, ranking):
     print(anchors)
 
 
-def check_errors_and_ranking(ranking):
+def check_errors_and_ranking(ranking, ranking_path):
     print("\nErrors:")
     mox_rank_for_image={}
+    to_drop=[]
     for index, row in ranking.iterrows():
         row_values=[]
         if index>=2:
@@ -68,6 +69,13 @@ def check_errors_and_ranking(ranking):
                     i+=1
             if len(missing_ranks)!=0 or len(duplicate_ranks)!=0:
                 print("Image:", analyzed_image,"missing ranks:",missing_ranks,"duplicate ranks:",duplicate_ranks)
+                to_drop.append(index)
+
+    while len(to_drop) != 0:
+        index = to_drop.pop(0)
+        ranking = ranking.drop(index)
+    ranking.to_csv(ranking_path, sep=';', index=False, header=True)
+
     print("\nMax rank for image:")
     for key in mox_rank_for_image.keys():
         print(key + " " + str(mox_rank_for_image[key]))
@@ -95,5 +103,5 @@ if __name__ == '__main__':
 
     check_missing_images(original_dataset, ranking)
 
-    check_errors_and_ranking(ranking)
+    check_errors_and_ranking(ranking, args.ranking)
 
