@@ -3,6 +3,9 @@ from torch.utils.tensorboard import SummaryWriter
 from src.utils import *
 
 class LossLogCallback(pl.Callback):
+    def __init__(self, cfg):
+        self.cfg = cfg
+
     def on_fit_start(self, trainer, pl_module):
         self.train_losses = []
         self.val_losses = []
@@ -14,7 +17,8 @@ class LossLogCallback(pl.Callback):
         self.val_losses.append(trainer.callback_metrics["val_loss"].item())
 
     def on_train_end(self, trainer, pl_module):
-        log_dir = 'logs/oral/' + get_last_version('logs/oral')
+        path = self.cfg.log.path + self.cfg.log.dir 
+        log_dir = path + '/' + get_last_version(path)
         writer = SummaryWriter(log_dir=log_dir)
         for i in range(0, len(self.train_losses)):
             writer.add_scalars('train_val_loss', {'train':self.train_losses[i],
