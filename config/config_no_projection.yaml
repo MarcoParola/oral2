@@ -1,0 +1,12 @@
+dataset:
+    test: ./data/triplet/test.csv
+
+log:  
+  path: "./logs/"
+  dir: "no_proj"
+  version: '0'
+
+features_extractor:
+  ranking: ./data/ranking.csv
+  features_dataset: ./data/features_dataset.csv
+  original: ./data/dataset.json
