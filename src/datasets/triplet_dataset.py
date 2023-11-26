@@ -8,6 +8,7 @@ class TripletDataset(torch.utils.data.Dataset):
     def __init__(self, dataset, features, ranking, img_dataset):
         features_dataset = pd.read_csv(open(features, "r"), sep=';', engine='python')
 
+        # collect the images' id in the triplet dataset
         self.triplets = pd.read_csv(open(dataset, "r"), sep=',', engine='python')
         triplets_ids=[]
         for i in range(0, len(self.triplets)):
@@ -18,6 +19,7 @@ class TripletDataset(torch.utils.data.Dataset):
             if self.triplets.loc[i, "case_id_neg"] not in triplets_ids:
                 triplets_ids.append(self.triplets.loc[i, "case_id_neg"])
 
+        # mantain only features in the triplet dataset
         i = 0
         while i < len(features_dataset):
             if features_dataset.loc[i, "image_id"] not in triplets_ids:
@@ -35,11 +37,20 @@ class TripletDataset(torch.utils.data.Dataset):
         features = [feature.to(torch.float32) for feature in features]
         self.features = [feature.requires_grad_() for feature in features]
 
+        self.lbls = list(features_dataset["type"])
+
+        # create a mapping between image name and id
         dataset = json.load(open(img_dataset, "r"))
         image_names={}
         for image in dataset["images"]:
             if image["id"] in self.ids:
                 image_names[image["file_name"]] = image["id"]
+
+        # create a map containing for each image id, ranked array of the other images' id in the triplet dataset
+        #       1235 1236 1237 1238
+        # 1234    3   -1    1    2
+        #
+        # 1234: [1237, 1238, 1235]
 
         self.ids_ranking={}
         image_names_keys = list(image_names.keys())

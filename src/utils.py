@@ -152,7 +152,7 @@ def get_last_version(path):
     last_folder = max(folders, key=lambda f: int(f.split('_')[1]))
     return last_folder  
 
-def log_compound_metrics(actual, predicted, log_dir):
+def log_compound_metrics(actual, predicted, projected, log_dir):
     """Logs metrics to tensorboard
     actual: ground truth
     predicted: predictions
@@ -166,34 +166,44 @@ def log_compound_metrics(actual, predicted, log_dir):
     writer = SummaryWriter(log_dir=log_dir)
     for key in actual.keys():
         gt = actual[key]
-        predict = predicted[key][:len(gt)]
+        predict = predicted[key]
+
+        ranked = len(gt)
+        for i in range(0, len(predict)):
+            if predict[i] not in gt:
+                gt.append(predict[i])
 
         rank={}
         for i in range(0, len(gt)):
-            rank[gt[i]] = i+1
-            gt[i] = i+1
+            if i < ranked:
+                rank[gt[i]] = i+1
+                gt[i] = i+1
+            else: 
+                rank[gt[i]] = len(predict)+1
+                gt[i] = len(predict)+1
 
         for i in range(0, len(predict)):
-            if predict[i] in rank.keys():
-                predict[i] = rank[predict[i]]
-            else:
-                predict[i] = len(predict)+1
+            predict[i] = rank[predict[i]]
 
-        d1 = spearman_footrule_distance(gt, predict)
+        #d1 = spearman_footrule_distance(gt, predict)
         d2 = kendall_tau_distance(gt,predict)
-        value = 0.6*d1 + 0.4*d2
+        #value = 0.6*d1 + 0.4*d2
         
-        if d1 > 1.0:
-            d1s.append(1.0)
-        else:
-            d1s.append(d1)
+        #if d1 > 1.0:
+        #    d1s.append(1.0)
+        #else:
+        #    d1s.append(d1)
         d2s.append(d2)
-        compounds.append(value)        
+        #compounds.append(value)        
 
-    writer.add_scalar('mean compound distance', sum(compounds) / len(compounds))
-    writer.add_scalar('mean spearman footrule distance', sum(d1s) / len(d1s))
-    writer.add_scalar('mean kendall tau distance', sum(d2s) / len(d2s))
-
+    #print(d1s)
+    print(d2s)
+    #writer.add_scalar('mean compound distance', sum(compounds) / len(compounds))
+    #writer.add_scalar('mean spearman footrule distance', sum(d1s) / len(d1s))
+    if projected:
+        writer.add_scalar('mean kendall tau distance projected', sum(d2s) / len(d2s))
+    else:
+        writer.add_scalar('mean kendall tau distance not projected', sum(d2s) / len(d2s))
     writer.close()
 
 
@@ -215,5 +225,4 @@ def get_knn(ids, features, reference, n_neighbors = 20):
 
 def get_k():
     dataset = pd.read_csv(open("./data/ranking.csv", "r"), sep=';', engine='python')
-    sorted_columns = dataset.iloc[3].sort_values().index
     return dataset.shape[1]-2

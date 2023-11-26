@@ -63,16 +63,34 @@ python -m scripts.check-ranked-dataset --original_dataset data/dataset.json --ra
 
 ### DL experiments
 
-Esempio train
+## Classification model
+```
+python classifier-train.py
+```
 
+## Projection model
 ```
-python train.py log.tensorboard=True
+python triplet-train.py
 ```
 
-Extract features
-```
-python -m scripts.extract_features load_model=shufflenet_v2_x1_0/model_0.pt
-```
+# Example of a simple pipeline
+
+- ```python classifier-train.py```
+- Set the `features_extractor.checkpoint_path` in the projection configuration as the model for feature extraction.
+- Set the `features_extractor.classifier=True` in the projection configuration in order to activate the feature extractor for the classifer features.
+- ```python scripts.features-extractor```
+- ```python plot-pca.py```
+- Set the `triplet.projection=False` in the projection configuration in order to activate the ranking process without the triplet net.
+- ```python rank-projection```
+- ```python triplet-train.py```
+- Set the `triplet.checkpoint_path` in the projection configuration as the projection model to use.
+- Set the `triplet.projection=True` in the projection configuration in order to activate the ranking process.
+- ```python rank-projection.py```
+- Set the `features_extractor.classifier=False` in the projection configuration in order to activate the feature extractor for the projected features.
+- ```python scripts.features-extractor```
+- ```python plot-pca.py```
+
+
 
 ```
 python -m tensorboard.main --logdir=logs

@@ -5,13 +5,23 @@ import pandas as pd
 import sys
 sys.path.append('src')
 from models.classifier import OralClassifierModule
+from models.triplet_net import TripletNetModule
 from utils import *
 sys.path.append('src/datasets')
 from classifier_dataset import OralClassificationDataset
+from triplet_dataset import TripletDataset
 
 
 @hydra.main(version_base=None, config_path="./../config", config_name="config_projection")
 def main(cfg):
+    if cfg.features_extractor.classifier:
+        feature_before_projection(cfg)
+    else:
+        feature_after_projection(cfg)
+
+
+
+def feature_before_projection(cfg):
     model = OralClassifierModule.load_from_checkpoint(cfg.log.path+cfg.features_extractor.checkpoint_path)
     model.eval()
     model.remove_network_end()
@@ -63,6 +73,46 @@ def main(cfg):
 
     features_dataset = pd.DataFrame(features_dataset, columns=['image_id', 'feature', 'type'])
     features_dataset.to_csv(cfg.features_extractor.features_dataset, sep=';', index=False, header=True)
+
+def feature_after_projection(cfg):
+    model = TripletNetModule.load_from_checkpoint(cfg.log.path+cfg.triplet.checkpoint_path)
+    model.eval()
+
+    features_dataset = pd.read_csv(
+        open(cfg.features_extractor.features_dataset, "r"), 
+        sep=';', 
+        engine='python'
+    )
+
+    ids = list(features_dataset["image_id"])
+
+    features = list(features_dataset["feature"])
+    features=[np.array(eval(feature)) for feature in features]
+    features = np.array(features)
+    features = features.squeeze()
+    features = torch.from_numpy(features)
+    features = [feature.to(torch.float32) for feature in features]
+    features = [feature.requires_grad_() for feature in features]
+
+    lbls = list(features_dataset["type"])
+
+    model = model.to('cuda')
+
+    features_dataset=[]
+
+    for i in range(0, len(ids)):
+        feature = features[i]
+
+        feature = feature.to('cuda')
+
+        feature = model(feature)
+        feature = feature.cpu()
+        feature = feature.detach()
+
+        features_dataset.append([ids[i], feature.tolist(), lbls[i]])
+
+    features_dataset = pd.DataFrame(features_dataset, columns=['image_id', 'feature', 'type'])
+    features_dataset.to_csv(cfg.triplet.features_dataset, sep=';', index=False, header=True)
 
 if __name__ == '__main__':
     main()
