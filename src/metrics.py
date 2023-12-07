@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def spearman_footrule_distance(s,t):
+def spearman_footrule_distance(s, t):
     """
     Computes the Spearman footrule distance between two full lists of ranks:
 
@@ -17,10 +17,10 @@ def spearman_footrule_distance(s,t):
     """
     # check that the lists are both full
     assert len(s) == len(t)
-    return (2.0/len(s)**2)*np.sum(np.abs(np.asarray(s) - np.asarray(t)))
+    return (2.0 / len(s) ** 2) * np.sum(np.abs(np.asarray(s) - np.asarray(t)))
 
 
-def kendall_tau_distance(s,t):
+def kendall_tau_distance(s, t):
     """
     Computes the Kendall tau distance between two full lists of ranks,
     which counts all discordant pairs (where s(i) < s(j) but t(i) > t(j),
@@ -37,7 +37,17 @@ def kendall_tau_distance(s,t):
     """
     numDiscordant = 0
     for i in range(0, len(s)):
-        for j in range(i+1, len(t)):
+        for j in range(i + 1, len(t)):
             if (s[i] < s[j] and t[i] > t[j]) or (s[i] > s[j] and t[i] < t[j]):
                 numDiscordant += 1
-    return 2.0 * numDiscordant / (len(s) * (len(s)-1))
+    return 2.0 * numDiscordant / (len(s) * (len(s) - 1))
+
+
+def calculate_intersection_over_salient_region(salient_area, ground_truth_mask):
+    salient_binary = (salient_area > 0).astype(np.uint8)
+    ground_truth_binary = (ground_truth_mask > 0).astype(np.uint8)
+    intersection = np.logical_and(salient_binary, ground_truth_binary)
+    salient_pixels = np.sum(salient_binary)
+    iosr = np.sum(intersection) / salient_pixels
+
+    return iosr
