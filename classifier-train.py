@@ -2,9 +2,10 @@ import os
 import hydra
 import torch
 import pytorch_lightning
-from sklearn.metrics import classification_report
 import numpy as np
-
+from sklearn.metrics import confusion_matrix, classification_report
+from sklearn.utils.multiclass import unique_labels
+from pytorch_lightning.callbacks import ModelCheckpoint
 from src.models.classifier import OralClassifierModule
 from src.datasets.datamodule import OralClassificationDataModule
 from src.log import LossLogCallback, get_loggers
@@ -12,7 +13,7 @@ from src.log import LossLogCallback, get_loggers
 from src.utils import *
 
 
-@hydra.main(version_base=None, config_path="./config", config_name="config")
+@hydra.main(version_base=None, config_path="./config", config_name="config_classification")
 def main(cfg):
 
     if cfg.train.seed == -1:
@@ -23,8 +24,10 @@ def main(cfg):
 
     callbacks = list()
     callbacks.append(get_early_stopping(cfg))
-    callbacks.append(LossLogCallback())
+    callbacks.append(LossLogCallback(cfg))
     loggers = get_loggers(cfg)
+
+    torch.set_float32_matmul_precision("high")
 
     # model
     model = OralClassifierModule(
@@ -32,7 +35,9 @@ def main(cfg):
         weights=cfg.model.weights,
         num_classes=cfg.model.num_classes,
         lr=cfg.train.lr,
-        #max_epochs = cfg.train.max_epochs
+        max_epochs=cfg.train.max_epochs,
+        features_size=cfg.model.features_size,
+        frozen_layers=cfg.train.frozen_layers
     )
 
     # datasets and transformations
@@ -48,6 +53,12 @@ def main(cfg):
         transform = img_tranform,
     )
 
+    checkpoint_callback = ModelCheckpoint(
+        save_top_k=1, 
+        monitor="val_loss",
+        mode="min"
+        )
+    callbacks.append(checkpoint_callback)
     # training
     trainer = pytorch_lightning.Trainer(
         logger=loggers,
@@ -61,6 +72,7 @@ def main(cfg):
     )
     trainer.fit(model, data)
 
+    trainer.test(dataloaders=data.test_dataloader(), ckpt_path='best')
 
     # prediction
     predictions = trainer.predict(model, data)   # TODO: inferenza su piu devices
@@ -71,9 +83,9 @@ def main(cfg):
     print(classification_report(gt, predictions))
 
     class_names = np.array(['Neoplastic', 'Aphthous', 'Traumatic'])
-    log_dir = 'logs/oral/' + get_last_version('logs/oral')
-    log_confusion_matrix(gt, predictions, classes=class_names, log_dir=log_dir) # TODO cambia nome, perchè loggo anche acc
-
+    path = cfg.log.path + cfg.log.dir 
+    log_dir = path + '/' + get_last_version(path)
+    log_report(gt, predictions, classes=class_names, log_dir=log_dir)
 
 
 if __name__ == "__main__":

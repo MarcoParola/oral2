@@ -4,6 +4,7 @@ import torchvision.transforms.functional as TF
 import os
 import json
 from PIL import Image
+import cv2
 
 class OralClassificationDataset(torch.utils.data.Dataset):
     def __init__(self, annonations, transform=None):
@@ -40,7 +41,33 @@ class OralClassificationDataset(torch.utils.data.Dataset):
         category = self.categories[annotation["category_id"]]
 
         return subimage, category
+    
+    def get_image_id(self, idx):
+        return self.dataset["images"][idx]["id"]
 
+    '''def __getitem__(self, idx):
+        annotation = self.dataset["annotations"][idx]
+        image = self.images[annotation["image_id"]]
+        image_path = os.path.join(os.path.dirname(self.annonations), "oral1", image["file_name"])
+        
+        image = cv2.imread(image_path)
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+        x, y, w, h = annotation["bbox"]
+        x = int(x)
+        y = int(y)
+        w = int(w)
+        h = int(h)
+        image = image[y:y+h, x:x+w]
+
+        if self.transform:
+            augmented = self.transform(image=image) 
+            image = augmented['image']
+
+        category = self.categories[annotation["category_id"]]
+
+        return image, category
+    '''
 
 if __name__ == "__main__":
     import torchvision

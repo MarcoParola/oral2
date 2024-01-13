@@ -2,6 +2,7 @@ import torch
 import torchvision
 from pytorch_lightning import LightningModule
 import tensorboard as tb
+from sklearn.metrics import accuracy_score
 
 class OralClassifierModule(LightningModule):
 
@@ -19,7 +20,26 @@ class OralClassifierModule(LightningModule):
         
         self._set_model_classifier(weights_cls, num_classes, features_size)
 
-        self.preprocess = weights.transforms()
+        for idx, param in enumerate(self.model.parameters()):
+            if idx < frozen_layers:
+                param.requires_grad = False
+            else:
+                param.requires_grad = True
+        
+        self._set_model_classifier(weights_cls, num_classes, features_size)
+
+        self.classifier = torch.nn.Sequential(
+            torch.nn.ReLU(),
+            torch.nn.Dropout(0.5),
+            torch.nn.Linear(features_size, num_classes)
+        )
+
+        self.model = torch.nn.Sequential(
+            self.model, 
+            self.classifier
+        )
+
+        self.preprocess = weights.transforms(antialias=True)
         self.loss = torch.nn.CrossEntropyLoss()
 
     def forward(self, x):
@@ -34,8 +54,13 @@ class OralClassifierModule(LightningModule):
         
     def test_step(self, batch, batch_idx):
         self._common_step(batch, batch_idx, "test")
-        output = self(batch)
-        accuracy = accuracy_score(output, batch['target'])
+        img, label = batch
+        x = self.preprocess(img)
+        output = self(x)
+        output = output.cpu() 
+        label = label.cpu() 
+        output = torch.argmax(output, dim=1)
+        accuracy = accuracy_score(output, label)
         self.log('test_accuracy', accuracy)
 
     def predict_step(self, batch, batch_idx, dataloader_idx=None):

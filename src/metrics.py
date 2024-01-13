@@ -1,6 +1,5 @@
 import numpy as np
 
-
 def spearman_footrule_distance(s,t):
     """
     Computes the Spearman footrule distance between two full lists of ranks:
