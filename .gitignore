@@ -20,3 +20,5 @@ requirements.txt
 *.log
 *.pth
 *.png
+
+/lightning_logs
