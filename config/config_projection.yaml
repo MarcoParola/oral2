@@ -1,0 +1,34 @@
+dataset:
+    train: ./data/triplet/train.csv
+    val: ./data/triplet/val.csv
+    test: ./data/triplet/test.csv
+    resize: 224
+
+train:
+  save_path: "./models/"
+  seed: -1
+  batch_size: 64
+  lr: 0.0009
+  accelerator: "gpu"
+  devices: 1
+  max_epochs: 100
+
+log:  
+  path: "./logs/"
+  dir: "triplets"
+  wandb: False
+  tensorboard: True
+
+features_extractor:
+  classifier: False
+  ranking: ./data/ranking.csv
+  preprocessed_ranking: ./data/oral_ranked_dataset.csv
+  checkpoint_path: oral/version_9/checkpoints/epoch=82-step=498.ckpt
+  features_dataset: ./data/features_dataset.csv
+  to_get_feature: ./data/to_get_features_dataset.json
+  original: ./data/dataset.json
+
+triplet:
+  checkpoint_path: triplets/version_4/checkpoints/epoch=98-step=18612.ckpt
+  features_dataset: ./data/triplet/features_dataset.csv
+  projection: False

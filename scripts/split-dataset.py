@@ -23,13 +23,12 @@ def create_coco(images):
         categories=dataset["categories"]
     )
 
+
 parser = argparse.ArgumentParser()
-
 parser.add_argument("--folder", type=str, required=True)
-parser.add_argument("--train-perc", type=float, default=0.8)
+parser.add_argument("--train-perc", type=float, default=0.7)
+parser.add_argument("--val-perc", type=float, default=0.15)
 parser.add_argument("--seed", type=int, default=42)
-
-
 args = parser.parse_args()
 
 random.seed(args.seed)
@@ -66,8 +65,7 @@ print("Categories:")
 
 train_images = []
 test_images = []
-
-
+val_images = []
 manual_categories = []
 
 for key, elems in category_buckets.items():
@@ -82,15 +80,16 @@ for key, elems in category_buckets.items():
                 train_images.append(image)
     else:
         random.shuffle(elems)
-        pivot = int(len(elems)*args.train_perc)
-        
-        train_images.extend(elems[:pivot])
-        test_images.extend(elems[pivot:])
-
-
+        pivot1 = int(len(elems) * args.train_perc)
+        pivot2 = int(len(elems) * args.val_perc) + pivot1
+        train_images.extend(elems[:pivot1])
+        val_images.extend(elems[pivot1:pivot2])
+        test_images.extend(elems[pivot2:])
 
 
 json.dump(create_coco(train_images), open(os.path.join(args.folder, "train.json"), "w"), indent=2)
+json.dump(create_coco(val_images), open(os.path.join(args.folder, "val.json"), "w"), indent=2)
 json.dump(create_coco(test_images), open(os.path.join(args.folder, "test.json"), "w"), indent=2)
-
 print("OK!")
+
+
