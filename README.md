@@ -80,15 +80,14 @@ python triplet-train.py
 python -m tensorboard.main --logdir=logs
 ```
 
-Esempio pca
+PCA example:
 
 ```
 python plot-pca.py --model resnet50.pth  --dataset data/train.json
 ```
 
-Ho aggiunto le metriche per il calcolo della spiegabilità che valutano la simiraità tra due ranking.
-Si usano due metriche `Spearman Footrule` e `Kendall Tau`. 
-Andrà usato più o meno così:
+Added metrics for computing explainability assessing the simirability between two rankings.
+Two metrics `Spearman Footrule` and `Kendall Tau` are used:
 
 ```
 from src.utils import convert_arrays_to_integers
