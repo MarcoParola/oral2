@@ -2,13 +2,25 @@
 __pycache__/
 
 /dataset
+/data
 /logs
 /outputs
 /.hydra
 /checkpoints
 /wandb
 /lightning_logs
+/runs
+/models
+/share
+/bin
+/lib
+/lib64
+/include
+pyvenv.cfg
+requirements.txt
 
 *.log
 *.pth
 *.png
+
+/lightning_logs
