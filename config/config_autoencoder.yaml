@@ -1,0 +1,33 @@
+dataset:
+  train: ./data/train.json
+  val: ./data/val.json
+  test: ./data/test.json
+  resize: 224
+  original: ./data/dataset.json
+
+train:
+  save_path: "./models/"
+  seed: -1
+  batch_size: 64
+  lr: 0.00003
+  accelerator: "gpu"
+  devices: 1
+  max_epochs: 1000
+  frozen_layers: 0
+  latent_dim: 512
+
+log:  
+  path: "./logs/"
+  dir: "image_autoencoder"
+  wandb: False
+  tensorboard: True
+
+features_extractor:
+  checkpoint_path: ./image_vae/version_13/checkpoints/epoch=655-step=4592.ckpt
+  to_get_feature: ./data/to_get_features_dataset.json
+  features_dataset: ./data/features_dataset.csv
+  vae: True
+
+results:
+  checkpoint_path: ./image_vae/version_11/checkpoints/epoch=422-step=2961.ckpt
+  vae: True

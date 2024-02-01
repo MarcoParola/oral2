@@ -1,13 +1,10 @@
 
-# models and weights here: https://pytorch.org/vision/stable/models.html
-#load_model: shufflenet_v2_x1_0
-
-# ResNet50_Weights.IMAGENET1K_V2 
-# GoogLeNet_Weights.IMAGENET1K_V1 
+# ResNet50_Weights.IMAGENET1K_V2
+# GoogLeNet_Weights.IMAGENET1K_V1
 # ViT_B_16_Weights.IMAGENET1K_SWAG_LINEAR_V1
-# EfficientNet_B3_Weights.IMAGENET1K_V1
+# EfficientNet_B1_Weights.IMAGENET1K_V2
 # DenseNet161_Weights.IMAGENET1K_V1
-# Swin_T_Weights.IMAGENET1K_V1 version 7-9, #epochs 91,97
+# Swin_T_Weights.IMAGENET1K_V1
 # VGG13_BN_Weights.IMAGENET1K_V1
 # RegNet_Y_1_6GF_Weights.IMAGENET1K_V2
 # MobileNet_V3_Large_Weights.IMAGENET1K_V2
@@ -16,11 +13,9 @@
 
 model:
   num_classes: 3
-  name: swin_t
-  # weights: ConvNeXt_Tiny_Weights.IMAGENET1K_V1
-  # weights: MaxVit_T_Weights.IMAGENET1K_V1
-  weights: Swin_T_Weights.IMAGENET1K_V1
-  features_size: 64
+  name: mobilenet_v3_large
+  weights: MobileNet_V3_Large_Weights.IMAGENET1K_V2
+  features_size: 512
 
 dataset:
   train: ./data/train.json
@@ -33,17 +28,15 @@ train:
   save_path: "./models/"
   seed: -1
   batch_size: 64
-  #lr: 0.00001
-  #lr: 0.00005
-  lr: 0.000009
+  lr: 0.000005
+
   accelerator: "gpu"
   devices: 1
-  max_epochs: 100
+  max_epochs: 600
   frozen_layers: 0
 
-
 log:  
-  path: "./logs/"
+  path: "./logs/new/"
   dir: "oral"
   wandb: False
   tensorboard: True

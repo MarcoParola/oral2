@@ -1,34 +1,36 @@
 dataset:
-    train: ./data/triplet/train.csv
-    val: ./data/triplet/val.csv
-    test: ./data/triplet/test.csv
+    train: ./data/new_triplet/train.csv
+    val: ./data/new_triplet/val.csv
+    test: ./data/new_triplet/test.csv
     resize: 224
 
 train:
   save_path: "./models/"
   seed: -1
   batch_size: 64
-  lr: 0.0009
+  lr: 0.00001
   accelerator: "gpu"
   devices: 1
-  max_epochs: 100
+  max_epochs: 5000
+  dim: 512
 
 log:  
   path: "./logs/"
-  dir: "triplets"
+  dir: "try"
   wandb: False
   tensorboard: True
 
 features_extractor:
-  classifier: False
+  classifier: True
   ranking: ./data/ranking.csv
   preprocessed_ranking: ./data/oral_ranked_dataset.csv
-  checkpoint_path: oral/version_9/checkpoints/epoch=82-step=498.ckpt
-  features_dataset: ./data/features_dataset.csv
+  checkpoint_path: ./final/oral/version_91/checkpoints/epoch=161-step=1134.ckpt
+  features_dataset: ./data/features_dataset_swin.csv
   to_get_feature: ./data/to_get_features_dataset.json
   original: ./data/dataset.json
 
 triplet:
-  checkpoint_path: triplets/version_4/checkpoints/epoch=98-step=18612.ckpt
-  features_dataset: ./data/triplet/features_dataset.csv
-  projection: False
+  checkpoint_path: zz2/version_8/checkpoints/epoch=44-step=14040.ckpt
+  log_dir: zz2/version_8/
+  features_dataset: ./data/features_dataset_vae128.csv
+  projection: True
