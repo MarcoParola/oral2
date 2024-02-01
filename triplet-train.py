@@ -35,7 +35,8 @@ def main(cfg):
     # model
     model = TripletNetModule(
         lr = cfg.train.lr,
-        max_epochs = cfg.train.max_epochs
+        max_epochs = cfg.train.max_epochs,
+        dim = cfg.train.dim
     )
 
     # datasets and transformations

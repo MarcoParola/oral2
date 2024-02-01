@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix, accuracy_score, recall_score, precision_score, f1_score
 from sklearn.utils.multiclass import unique_labels
 from torch.utils.tensorboard import SummaryWriter
-from sklearn.neighbors import NearestNeighbors
+from sklearn.neighbors import NearestNeighbors,KNeighborsClassifier
 import sys
 sys.path.append('src')
 from metrics import *
@@ -49,7 +49,7 @@ def get_early_stopping(cfg):
     early_stopping_callback = EarlyStopping(
         monitor='val_loss',
         mode='min',
-        patience=15,
+        patience=25,
     )
     return early_stopping_callback
 
@@ -152,77 +152,163 @@ def get_last_version(path):
     last_folder = max(folders, key=lambda f: int(f.split('_')[1]))
     return last_folder  
 
-def log_compound_metrics(actual, predicted, projected, log_dir):
+def log_compound_metrics(actual, predicted, accuracy, projected, log_dir):
     """Logs metrics to tensorboard
     actual: ground truth
     predicted: predictions
+    accuracy: accuracy
+    projected: a simple flag
     log_dir: path to the log directory
     """
     assert len(actual) == len(predicted)
 
     d1s=[]
     d2s=[]
+    d3s=[]
     compounds=[]
+
+    d3s_5=[]
+    
+    d3s_10=[]
+
     writer = SummaryWriter(log_dir=log_dir)
     for key in actual.keys():
         gt = actual[key]
         predict = predicted[key]
 
-        ranked = len(gt)
+        d3 = jaccard_mod(gt, predict)
+        d3_5 = jaccard_mod(gt[:5], predict[:5])
+        d3_10 = jaccard_mod(gt[:10], predict[:10])
+
+        to_del = []
         for i in range(0, len(predict)):
             if predict[i] not in gt:
-                gt.append(predict[i])
+                to_del.append(predict[i])
+
+        for element in to_del:
+            predict.remove(element)
 
         rank={}
         for i in range(0, len(gt)):
-            if i < ranked:
-                rank[gt[i]] = i+1
-                gt[i] = i+1
-            else: 
-                rank[gt[i]] = len(predict)+1
-                gt[i] = len(predict)+1
+            rank[gt[i]] = i+1
+            gt[i] = i+1
 
         for i in range(0, len(predict)):
             predict[i] = rank[predict[i]]
 
-        #d1 = spearman_footrule_distance(gt, predict)
+        d1 = spearman_footrule_distance(gt,predict)
         d2 = kendall_tau_distance(gt,predict)
-        #value = 0.6*d1 + 0.4*d2
         
-        #if d1 > 1.0:
-        #    d1s.append(1.0)
-        #else:
-        #    d1s.append(d1)
+        value = 0.3*d1 + 0.4*d2 + 0.3*d3
+        
+        d1s.append(d1)
         d2s.append(d2)
-        #compounds.append(value)        
+        d3s.append(d3)
+        compounds.append(value)  
 
-    #print(d1s)
-    print(d2s)
-    #writer.add_scalar('mean compound distance', sum(compounds) / len(compounds))
-    #writer.add_scalar('mean spearman footrule distance', sum(d1s) / len(d1s))
+        d3s_5.append(d3_5)
+
+        d3s_10.append(d3_10)    
+
     if projected:
+        writer.add_scalar('mean compound distance projected', sum(compounds) / len(compounds))
+        writer.add_scalar('mean spearman footrule distance projected', sum(d1s) / len(d1s))
         writer.add_scalar('mean kendall tau distance projected', sum(d2s) / len(d2s))
+        writer.add_scalar('mean jaccard distance projected', sum(d3s) / len(d3s))
+        writer.add_scalar('mean jaccard distance @ 5 projected', sum(d3s_5) / len(d3s_5))
+        writer.add_scalar('mean jaccard distance @ 10 projected', sum(d3s_10) / len(d3s_10))
+        writer.add_scalar('knn classification accuracy projected', accuracy)
+
+        print('mean compound distance projected', sum(compounds) / len(compounds))
+        print('mean spearman footrule distance projected', sum(d1s) / len(d1s))
+        print('mean kendall tau distance projected', sum(d2s) / len(d2s))
+        print('mean jaccard distance projected', sum(d3s) / len(d3s))
+        print('mean jaccard distance @ 5 projected', sum(d3s_5) / len(d3s_5))
+        print('mean jaccard distance @ 10 projected', sum(d3s_10) / len(d3s_10))
+        print('knn classification accuracy projected', accuracy)
     else:
-        writer.add_scalar('mean kendall tau distance not projected', sum(d2s) / len(d2s))
+        writer.add_scalar('mean compound distance NOT projected', sum(compounds) / len(compounds))
+        writer.add_scalar('mean spearman footrule distance NOT projected', sum(d1s) / len(d1s))
+        writer.add_scalar('mean kendall tau distance NOT projected', sum(d2s) / len(d2s))
+        writer.add_scalar('mean jaccard distance NOT projected', sum(d3s) / len(d3s))
+        writer.add_scalar('mean jaccard distance @ 5 NOT projected', sum(d3s_5) / len(d3s_5))
+        writer.add_scalar('mean jaccard distance @ 10 NOT projected', sum(d3s_10) / len(d3s_10))
+        writer.add_scalar('knn classification accuracy NOT projected', accuracy)
+
+        print('mean compound distance NOT projected', sum(compounds) / len(compounds))
+        print('mean spearman footrule distance NOT projected', sum(d1s) / len(d1s))
+        print('mean kendall tau distance NOT projected', sum(d2s) / len(d2s))
+        print('mean jaccard distance NOT projected', sum(d3s) / len(d3s))
+        print('mean jaccard distance @ 5 NOT projected', sum(d3s_5) / len(d3s_5))
+        print('mean jaccard distance @ 10 NOT projected', sum(d3s_10) / len(d3s_10))
+        print('knn classification accuracy NOT projected', accuracy)
+
     writer.close()
 
-
-def get_knn(ids, features, reference, n_neighbors = 20):
-    features = [feature.detach().numpy() for feature in features]
-    
-    #distance_metric = 'euclidean'
-    distance_metric = 'cosine'
-
-    knn = NearestNeighbors(n_neighbors=n_neighbors, metric=distance_metric)
-    knn.fit(features)
-
-    reference = features[0]
-    distances, indices = knn.kneighbors([reference])
-    nearest_neighbor_ids = [ids[i] for i in indices[0]]
-
-    return nearest_neighbor_ids
-
-
 def get_k():
+    """Returns the number of references
+    """
     dataset = pd.read_csv(open("./data/ranking.csv", "r"), sep=';', engine='python')
     return dataset.shape[1]-2
+
+def images_comparison(original, reconstructed, n):
+    """Creates and save a comparison image between the original and autoencoder recostructed image
+    original: original image
+    reconstructed: reconstructed image
+    n: result index
+    """
+
+    fig, axes = plt.subplots(1, 2, figsize=(10, 5))
+
+    # Plot original image
+    axes[0].imshow(original.permute(1, 2, 0))
+    axes[0].set_title('Original Image')
+    axes[0].axis('off')
+
+    # Plot reconstructed image
+    axes[1].imshow(reconstructed.permute(1, 2, 0))
+    axes[1].set_title('Reconstructed Image')
+    axes[1].axis('off')
+
+    plt.savefig("./outputs/img/compare_"+str(n)+".png")
+    plt.close()
+
+def get_knn_classification(features_reference, lbls_reference, features_test, lbls_test, n_neighbors = 5):   
+    """Compute and return the accuracy with knn
+    features_reference: reference features 
+    lbls_reference: labels of the reference features
+    features_test: test features 
+    lbls_test: labels of the test features
+    n_neighbors: nearest neighbour 
+    """ 
+    distance_metric = 'euclidean'
+    #distance_metric = 'cosine'
+    knn = KNeighborsClassifier(n_neighbors=n_neighbors, metric=distance_metric)
+    knn.fit(features_reference, lbls_reference)
+
+    predicted_labels=[]
+    for feature in features_test:
+        predicted_labels.append(knn.predict([feature]))
+
+    accuracy = accuracy_score(lbls_test, predicted_labels)
+
+    return accuracy
+
+def get_knn(ids, features_reference, features_test, n_neighbors = 20):    
+    """Find the ids of the knn
+    features_reference: reference features 
+    features_test: test features 
+    n_neighbors: nearest neighbour 
+    """ 
+    distance_metric = 'euclidean'
+    #distance_metric = 'cosine'
+
+    knn = NearestNeighbors(n_neighbors=n_neighbors, metric=distance_metric)
+    knn.fit(features_reference)
+
+    test_knn=[]
+    for feature in features_test:
+        distances, indices = knn.kneighbors([feature])
+        test_knn.append([ids[i] for i in indices[0]])
+
+    return test_knn

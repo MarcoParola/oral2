@@ -12,7 +12,7 @@ def main(cfg):
                  engine='python')
     references = list(dataset.columns)
     references = references[2:]
-
+    
     dataset = json.load(open(cfg.features_extractor.original, "r"))
     image_names={}
     for image in dataset["images"]:
@@ -30,31 +30,16 @@ def main(cfg):
 
     test_dataset = TripletDataset(
         cfg.dataset.test, 
-        cfg.features_extractor.features_dataset,
+        cfg.triplet.features_dataset,
         cfg.features_extractor.ranking,
         cfg.features_extractor.original
     )
 
     gt = test_dataset.get_ids_ranking()
 
-    features_dataset = pd.read_csv(open(cfg.features_extractor.features_dataset, "r"), sep=';', engine='python')
-    i = 0
-    while i < len(features_dataset):
-        if features_dataset.loc[i, "image_id"] not in reference_ids and features_dataset.loc[i, "image_id"] not in gt.keys() :
-            features_dataset = features_dataset.drop(i)
-        i+=1
-    features_dataset.reset_index(inplace = True, drop = True)
+    feature_ids, features, lbls = test_dataset.get_features_dataset()
 
-    feature_ids = list(features_dataset["image_id"])
-
-    features = list(features_dataset["feature"])
-    features=[np.array(eval(feature)) for feature in features]
-    features = np.array(features)
-    features = features.squeeze()
-    features = torch.from_numpy(features)
-    features = [feature.to(torch.float32) for feature in features]
-    features = [feature.requires_grad_() for feature in features]
-
+    # Project all the features
     if cfg.triplet.projection:
         model = TripletNetModule.load_from_checkpoint(cfg.log.path+cfg.triplet.checkpoint_path)
         model.eval()
@@ -63,37 +48,41 @@ def main(cfg):
         predictions = []
         for feature in features:
             feature = feature.to('cuda')
-            #feature = feature.cpu()
             feature = feature.detach()
             predictions.append(model.forward(feature))
 
         predictions = [prediction.cpu() for prediction in predictions]
     else: 
-        predictions = features
+        predictions = [feature.detach().cpu() for feature in features]
 
-
+    # Isolate the reference features
     reference_predictions=[]
+    reference_lbls=[]
     for item in reference_ids:
         index = feature_ids.index(item)
-        reference_predictions.append(predictions[index])
+        reference_predictions.append(np.array(predictions[index].detach().numpy()))
+        reference_lbls.append(lbls[index])
+
+    test_predictions=[]
+    test_lbls=[]
+    test_ids=list(gt.keys())
+    for item in test_ids:
+        index = feature_ids.index(item)
+        test_predictions.append(np.array(predictions[index].detach().numpy()))
+        test_lbls.append(lbls[index])
 
     # Missing anchor found..
     k = len(reference_ids)
-    #k = get_k()
+    accuracy = get_knn_classification(reference_predictions, reference_lbls, test_predictions, test_lbls, 5)
+    app = get_knn(reference_ids, reference_predictions, test_predictions, k)
 
     knn = {}
-    for key in gt.keys():
-        index = feature_ids.index(key)
-        anchor = predictions[index]
-        anchor_id = feature_ids[index]
-        others = list(reference_predictions)
-        other_ids = list(reference_ids)
-        knn[anchor_id] = get_knn(other_ids, others, anchor, k)
+    for i in range(0, len(test_ids)):
+        knn[test_ids[i]] = app[i]
 
-    path = cfg.log.path + cfg.log.dir 
-    log_dir = path + '/' + get_last_version(path)
+    log_dir = cfg.log.path + cfg.triplet.log_dir
 
-    log_compound_metrics(gt, knn, cfg.triplet.projection, log_dir=log_dir)
+    log_compound_metrics(gt, knn, accuracy, cfg.triplet.projection, log_dir=log_dir)
 
 if __name__ == '__main__':
     main()
