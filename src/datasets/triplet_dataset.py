@@ -9,7 +9,7 @@ class TripletDataset(torch.utils.data.Dataset):
         features_dataset = pd.read_csv(open(features, "r"), sep=';', engine='python')
 
         # collect the images' id in the triplet dataset
-        self.triplets = pd.read_csv(open(dataset, "r"), sep=',', engine='python')
+        self.triplets = pd.read_csv(open(dataset, "r"), sep=';', engine='python')
         triplets_ids=[]
         for i in range(0, len(self.triplets)):
             if self.triplets.loc[i, "case_id"] not in triplets_ids:
@@ -97,5 +97,5 @@ class TripletDataset(torch.utils.data.Dataset):
         return self.ids_ranking
 
     def get_features_dataset(self):
-        return self.ids, self.features
+        return self.ids, self.features, self.lbls
 
