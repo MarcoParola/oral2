@@ -21,7 +21,7 @@ class OralClassifierModule(LightningModule):
         # Freeze layers
         if frozen_layers == -1:
             layers_number = len(list(self.model.parameters()))
-            frozen_layers=int(layers_number * 0.8)
+            frozen_layers=int(layers_number * 0.9)
 
         for idx, param in enumerate(self.model.parameters()):
             if idx < frozen_layers:
@@ -31,11 +31,7 @@ class OralClassifierModule(LightningModule):
         
         self._set_model_classifier(weights_cls, num_classes, features_size)
 
-        self.classifier = torch.nn.Sequential(
-            torch.nn.ReLU(),
-            torch.nn.Dropout(0.5),
-            torch.nn.Linear(features_size, num_classes)
-        )
+        self.classifier = self._get_last_part(weights_cls, num_classes, features_size)
 
         self.model = torch.nn.Sequential(
             self.model, 
@@ -72,13 +68,13 @@ class OralClassifierModule(LightningModule):
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=self.hparams.lr)
-        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=self.hparams.max_epochs, eta_min=1e-5)
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=self.hparams.max_epochs, eta_min=(self.hparams.lr*0.1))
 
         lr_scheduler_config = {
             "scheduler": scheduler,
             "interval": "step",
-            "frequency": 1
-            #"monitor": "val_loss",
+            "frequency": 1,
+            "monitor": "val_loss"
         }
 
         return [optimizer], [lr_scheduler_config]
@@ -98,8 +94,10 @@ class OralClassifierModule(LightningModule):
         weights_cls = str(weights_cls)
         if "ConvNeXt" in weights_cls:
             self.model.classifier = torch.nn.Sequential(
-                torch.nn.Dropout(0.5),
                 torch.nn.Flatten(1),
+                torch.nn.LayerNorm(self.model.classifier[2].in_features),
+
+                torch.nn.Dropout(0.5),
                 torch.nn.Linear(self.model.classifier[2].in_features, features_size)
             )
         elif "EfficientNet" in weights_cls:
@@ -107,10 +105,18 @@ class OralClassifierModule(LightningModule):
                 torch.nn.Dropout(0.5),
                 torch.nn.Linear(self.model.classifier[1].in_features, features_size)
             )
-        elif "MobileNet" in weights_cls or "VGG" in weights_cls:
+        elif "MobileNet" in weights_cls:
             self.model.classifier = torch.nn.Sequential(
                 torch.nn.Dropout(0.5),
-                torch.nn.Linear(self.model.classifier[0].in_features, features_size)
+                torch.nn.Linear(self.model.classifier[0].in_features, features_size),
+            )
+        elif "VGG" in weights_cls:
+            self.model.classifier = torch.nn.Sequential(
+                torch.nn.Dropout(0.5),
+                torch.nn.Linear(self.model.classifier[0].in_features, features_size),
+                torch.nn.ReLU(True),
+                torch.nn.Dropout(0.5),
+                torch.nn.Linear(features_size, features_size)
             )
         elif "DenseNet" in weights_cls:
             self.model.classifier = torch.nn.Sequential(
@@ -119,9 +125,10 @@ class OralClassifierModule(LightningModule):
             )
         elif "MaxVit" in weights_cls:
             self.model.classifier = torch.nn.Sequential(
-                torch.nn.Dropout(0.5),
                 torch.nn.AdaptiveAvgPool2d(1),
                 torch.nn.Flatten(),
+                torch.nn.LayerNorm(self.model.classifier[5].in_features),
+                torch.nn.Dropout(0.5),
                 torch.nn.Linear(self.model.classifier[5].in_features, features_size)
             )
         elif "ResNet" in weights_cls or "RegNet" in weights_cls or "GoogLeNet" in weights_cls:
@@ -138,4 +145,34 @@ class OralClassifierModule(LightningModule):
             self.model.heads = torch.nn.Sequential(
                 torch.nn.Dropout(0.5),
                 torch.nn.Linear(self.model.hidden_dim, features_size)
+            )
+
+    def _get_last_part(self, weights_cls, num_classes, features_size): 
+        weights_cls = str(weights_cls)
+        
+        if ("ConvNeXt" in weights_cls or "DenseNet" in weights_cls
+            or "ResNet" in weights_cls or "RegNet" in weights_cls 
+            or "GoogLeNet" in weights_cls or "Swin" in weights_cls
+            or "ViT" in weights_cls or "EfficientNet" in weights_cls):
+            return torch.nn.Sequential(
+                torch.nn.Dropout(0.5),
+                torch.nn.Linear(features_size, num_classes)
+            )
+        elif "MobileNet" in weights_cls:
+            return torch.nn.Sequential(
+                torch.nn.Hardswish(inplace=True),
+                torch.nn.Dropout(p=0.5, inplace=True),
+                torch.nn.Linear(features_size, num_classes)
+            )
+        elif "VGG" in weights_cls:
+            return torch.nn.Sequential(
+                torch.nn.ReLU(True),
+                torch.nn.Dropout(0.5),
+                torch.nn.Linear(features_size, num_classes)
+            )
+        elif "MaxVit" in weights_cls:
+            return torch.nn.Sequential(
+                torch.nn.Tanh(),
+                torch.nn.Dropout(0.5),
+                torch.nn.Linear(features_size, num_classes)
             )

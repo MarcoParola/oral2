@@ -5,12 +5,80 @@ import tensorboard as tb
 
 class TripletNetModule(LightningModule):
 
-    def __init__(self, lr = 0.0004, max_epochs = 100, frozen_layers=-1):
+    def __init__(self, lr = 0.0004, max_epochs = 100, dim=64):
         super().__init__()
         self.save_hyperparameters()
 
-        self.model = torch.nn.Linear(64, 64)
+        # 2 layers
+        '''self.model = torch.nn.Sequential(
+            torch.nn.Linear(dim, dim),
+            torch.nn.GELU(),
+            torch.nn.Dropout(0.2),
+            torch.nn.Linear(dim, dim)
+        )'''
+
+        # 3 layers
+        self.model = torch.nn.Sequential(
+            torch.nn.Linear(dim, dim),
+            torch.nn.GELU(),
+            torch.nn.Dropout(0.2),
+            torch.nn.Linear(dim, dim),
+            torch.nn.GELU(),
+            torch.nn.Dropout(0.2),
+            torch.nn.Linear(dim, dim)
+        )
+
+        # 5 layers
+        '''self.model = torch.nn.Sequential(
+            torch.nn.Linear(dim, dim),
+            torch.nn.GELU(),
+            torch.nn.Dropout(0.2),
+            torch.nn.Linear(dim, dim),
+            torch.nn.GELU(),
+            torch.nn.Dropout(0.2),
+            torch.nn.Linear(dim, dim),
+            torch.nn.GELU(),
+            torch.nn.Dropout(0.2),
+            torch.nn.Linear(dim, dim),
+            torch.nn.GELU(),
+            torch.nn.Dropout(0.2),
+            torch.nn.Linear(dim, dim)
+        )'''
+
+        #10 layers
+        '''self.model = torch.nn.Sequential(
+            torch.nn.Linear(dim, dim),
+            torch.nn.GELU(),
+            torch.nn.Dropout(0.2),
+            torch.nn.Linear(dim, dim),
+            torch.nn.GELU(),
+            torch.nn.Dropout(0.2),
+            torch.nn.Linear(dim, dim),
+            torch.nn.GELU(),
+            torch.nn.Dropout(0.2),
+            torch.nn.Linear(dim, dim),
+            torch.nn.GELU(),
+            torch.nn.Dropout(0.2),
+            torch.nn.Linear(dim, dim),
+            torch.nn.GELU(),
+            torch.nn.Dropout(0.2),
+            torch.nn.Linear(dim, dim),
+            torch.nn.GELU(),
+            torch.nn.Dropout(0.2),
+            torch.nn.Linear(dim, dim),
+            torch.nn.GELU(),
+            torch.nn.Dropout(0.2),
+            torch.nn.Linear(dim, dim),
+            torch.nn.GELU(),
+            torch.nn.Dropout(0.2),
+            torch.nn.Linear(dim, dim),
+            torch.nn.GELU(),
+            torch.nn.Dropout(0.2),
+            torch.nn.Linear(dim, dim)
+        )'''
         
+        print(self.model)
+
         self.loss = torch.nn.TripletMarginLoss(margin=1.0, p=2, eps=1e-7)
 
     def forward(self, x):
