@@ -23,15 +23,21 @@ def check_missing_images(original_dataset, ranking):
     for i in range(0, len(original_dataset["images"])):
         if original_dataset["images"][i]["file_name"] in ranked_images:
             ranked_images.remove(original_dataset["images"][i]["file_name"])
+
         if original_dataset["images"][i]["file_name"] in anchors:
             anchors.remove(original_dataset["images"][i]["file_name"])
 
     print("Missing images found: " + str(len(ranked_images)) + "/" + str(total_size1))
     print(ranked_images)
 
+    #for row in ranked_images:
+    #    ranking = ranking.drop(row)
+
     print("\nMissing anchor images found: " + str(len(anchors)) + "/" + str(total_size2))
     print(anchors)
 
+    #for column in anchors:
+    #    ranking = ranking.drop(column, axis=1)
 
 def check_errors_and_ranking(ranking, ranking_path):
     print("\nErrors:")
