@@ -1,8 +1,24 @@
 # **Oral2**
-[![license](https://img.shields.io/github/license/MarcoParola/oral2?style=plastic)]()
-[![size](https://img.shields.io/github/languages/code-size/MarcoParola/oral2?style=plastic)]()
 
-This github repo is to publicly release the code of oral2.
+This github repo is to publicly release the code of the paper **Towards explainable oral cancer recognition: Screening on imperfect images via Informed Deep Learning and Case-Based Reasoning**. 
+
+Official project web page can be found [here](https://marcoparola.github.io/oral2/)
+
+If you find it useful please, cite as:
+```
+@article{PAROLA2024102433,
+    title = {Towards explainable oral cancer recognition: Screening on imperfect images via Informed Deep Learning and Case-Based Reasoning},
+    journal = {Computerized Medical Imaging and Graphics},
+    volume = {117},
+    pages = {102433},
+    year = {2024},
+    issn = {0895-6111},
+    doi = {https://doi.org/10.1016/j.compmedimag.2024.102433},
+    url = {https://www.sciencedirect.com/science/article/pii/S0895611124001101},
+    author = {Marco Parola and Federico A. Galatolo and Gaetano {La Mantia} and Mario G.C.A. Cimino and Giuseppina Campisi and Olga {Di Fede}},
+    keywords = {Oral cancer, Oncology, Medical imaging, Case-based reasoning, Informed deep learning, Explainable artificial intelligence}
+}
+```
 
 ## Install
 
