@@ -1,6 +1,6 @@
 # **Oral2**
 
-This github repo is to publicly release the code of the paper **Towards explainable oral cancer recognition: Screening on imperfect images via Informed Deep Learning and Case-Based Reasoning**. 
+This github repo is to publicly release the code of the paper [**Towards explainable oral cancer recognition: Screening on imperfect images via Informed Deep Learning and Case-Based Reasoning**](https://www.sciencedirect.com/science/article/pii/S0895611124001101). 
 
 Official project web page can be found [here](https://marcoparola.github.io/oral2/)
 
